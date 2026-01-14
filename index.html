@@ -1,0 +1,34 @@
+---
+title: Home
+---
+
+<div class="vignette">
+    <p class="vignette__text">
+        Welcome to my blog!
+    </p>
+
+    <figure class="vignette__figure">
+        <img class="vignette__image"
+            src="/images/jrrom.jpg" alt="jrrom in a racing kart">
+        <figcaption class="vignette__caption">
+            <svg width="1em" height="1em">
+                <use href="/images/logos.svg#email">
+            </svg>
+            web<i>(at)</i>jrrom<i>(dot)</i>com
+        </figcaption>
+    </figure>
+</div>
+
+<fieldset class="skills">
+    <legend class="skills__title"> Skills </legend>
+    <ul class="tag-list">
+        $tags$
+    </ul>
+</fieldset>
+
+<p> See the most recent posts or click a tag to see related posts! </p>
+
+<h2>Posts</h2>
+$partial("templates/post-list.html")$
+
+<p><a href="/archive.html">...see more!</a></p>

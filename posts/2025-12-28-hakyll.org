@@ -1,0 +1,160 @@
+---
+title: "Creating my first blog with Hakyll and Org!"
+description: Documenting the process of creating a simple Org-based blog with Hakyll.
+tags: Programming, Haskell, Web, HTML, CSS&SCSS
+toc: true
+---
+#+TITLE:Creating my first blog with Hakyll and Org!
+
+* The Beginning
+As a complete newcomer to both [[https://www.haskell.org/][Haskell]] and the world of [[https://en.wikipedia.org/wiki/Static_site_generator][static site generators]], [[https://hackage.haskell.org/package/hakyll][Hakyll]] was definitely not my first choice. The ideal SSG[fn:1] is extensible, understandable and lightweight while Hakyll likely only fills one of these criteria for those unfamiliar with the Haskell ecosystem. So why Hakyll?
+
+I'm just going to cut to the chase and say it, it's because of [[https://pandoc.org/][Pandoc]]. Hakyll is one of the only SSGs that supports [[https://orgmode.org/][Org]] natively (thanks to Pandoc!) besides [[https://gohugo.io/][Hugo]], and learning Haskell is somehow more approachable and comforting than swimming against the tide that is comprehending Hugo's templating system. I personally found it quite unintuitive to get started with Hugo. Sometimes the juice is not worth the squeeze. I investigated alternatives such as [[https://www.getzola.org/][Zola]], which I did enjoy a lot, but found myself fighting with the templating engine once again and missing Org.[fn:2]
+
+So here I find myself with Hakyll.
+
+* Setup
+The [[https://github.com/jrrom/website][Git repo]] for this site is available for curious minds. I run a simple [[https://nixos-and-flakes.thiscute.world/development/dev-environments][Nix development flake]] with GHC[fn:3] and [[https://www.haskell.org/cabal/][Cabal]] along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll's [[https://jaspervdj.be/hakyll/tutorials.html][beginner tutorials]] to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.[fn:4]
+
+** Gotcha #1
+Special thanks to [[https://jakebox.github.io/posts/2025-09-12-this_blog.html][Jacob Boxerman's blogpost on switching to Hakyll]] for showing how to add metadata to Org documents, you just have to add the same header that you do for Markdown. This is unexpected and does not use Org mode's default metadata tags, so I am noting it down here.
+
+#+begin_src yaml -n
+---
+title: "Example of metadata, even for Org files"
+author: jrrom
+...
+---
+#+end_src
+
+** Gotcha #2
+Hakyll is the library that allows us to build the executable that is the actual SSG, =cabal install= is used to first install the built executable =site= to a directory. This is not updated with =cabal build= as I thought, so I was running the old executable again and again until I realised. Now I use =cabal run site= instead of using install.
+
+* Development
+For general tutorials, refer to [[https://jaspervdj.be/hakyll/tutorials.html][the official site]]! Development with Hakyll in my experience is more like developing your own SSG with the tools that Hakyll provides. It has a lot of power in its customisability.
+
+** Adding collected tags to each post
+I followed the [[https://javran.github.io/posts/2014-03-01-add-tags-to-your-hakyll-blog.html][helpful tutorial linked here]] and ended up with a basic tag setup. However I was unsatisfied by the general lack of HTML modification capabilities so I had to use the library functions to create the markup structure that I wanted
+
+For the index page, I made an ~indexTagsCtx~ that collects all the tags from all the posts and arranges them by the number of posts that contain the specified tag.
+
+#+begin_src haskell -n
+indexRenderTags :: Tags -> Compiler String
+indexRenderTags tags =
+  renderTags
+  (\tag url count _ _ ->
+      "<li class=\"" ++ tag ++ "\"> <a href=\"" ++ url ++ "\">" ++ tag ++ "</a>" ++
+      "<i> " ++ (show count) ++ " </i>" ++ "</li>")
+  unlines
+  (sortTagsBy postNumTagSort tags)
+
+
+indexTagsCtx :: Tags -> Context String
+indexTagsCtx tags =
+  field "tags" $ \_ ->
+                   indexRenderTags tags
+#+end_src
+
+For rendering the tags of a normal post, this is where I found it got a bit strange. Instead of writing HTML with strings, I had to use [[https://hackage.haskell.org/package/blaze-html][blaze-html]] in order to feed the proper input to the library function, but it works nevertheless. It felt weird that the function interfaces are different for this seemingly similar thing.
+
+#+begin_src haskell -n
+jrromRenderLink :: String -> (Maybe FilePath) -> Maybe H.Html
+jrromRenderLink _ Nothing = Nothing
+jrromRenderLink tag (Just filePath) = Just $
+  H.li ! A.class_ (toValue tag) $
+      H.a ! A.href (toValue $ toUrl filePath) $
+          toHtml tag
+
+postCtxWithTags tags =
+  dateField "date" "%B %e, %Y" <>
+  tagsFieldWith getTags jrromRenderLink (mconcat . intersperse "\n") "tags" tags <>
+  defaultContext
+#+end_src
+
+** Adding syntax highlighting
+I found a few great blogs for advanced syntax highlighting using [[https://tony-zorman.com/posts/pygmentising-hakyll.html][pygmentize]] or even [[https://vaibhavsagar.com/blog/2023/01/29/ghc-syntax-hakyll/][ghc itself]], however I decided to just go for the default as it suited my needs. I ran the following code in the repl to generate the syntax highlighting file:
+
+#+begin_src haskell -n
+import Text.Pandoc.Highlighting
+writeFile "syntax.css" (styleToCss breezeDark)
+#+end_src
+
+Then I imported it into my ~default.scss~. I will expand on my SCSS configuration later in this post. But for now I have left it untouched.
+
+*** Gotcha #3
+In Org, you have to add -n as a header argument to the code block in order to enable line numbers in the generated HTML. Refer to the following:
+#+begin_src org -n
+,#+begin_src yaml -n
+...
+...
+,#+end_src
+#+end_src
+
+** Adding a Table of Contents (TOC)
+First, I would like to link to [[https://github.com/jaspervdj/hakyll][Hakyll's official website source code]] where the proper solution to this problem is given. I couldn't find mentions to this  anywhere else. Next I would like to link to [[https://argumatronic.com/posts/2018-01-16-pandoc-toc.html][Argumatronic's blog on Pandoc TOC generation]], though it is outdated now, I used the methods described to successfully only generate the TOC for posts with ~toc~ in the metadata. As seen below, if ~toc~ exists then I pass ~withToc~, else I pass ~defaultHakyllWriterOptions~.
+
+#+begin_src haskell -n
+main :: IO ()
+main = hakyll $ do
+...
+  match "posts/*" $ do
+    route $ setExtension "html"
+    compile $ do
+      ident <- getUnderlying
+      toc   <- getMetadataField ident "toc"
+
+      let writerSettings = case toc of
+            Just _  -> withToc
+            Nothing -> defaultHakyllWriterOptions
+
+      pandocCompilerWith defaultHakyllReaderOptions writerSettings
+        >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)
+        >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)
+        >>= relativizeUrls
+...
+#+end_src
+
+And now, ~withToc~, which doesn't allow developers to pass a ~Maybe String~ to the ~writerTemplate~ anymore. Spent a long time fixing this!
+
+#+begin_src haskell -n
+withToc :: WriterOptions
+withToc = defaultHakyllWriterOptions
+        { writerTableOfContents = True
+        , writerNumberSections = True
+        , writerTOCDepth = 3
+        , writerTemplate = Just (
+            either error id $ either (error . show) id
+          $ runPure
+          $ runWithDefaultPartials
+          $ compileTemplate "" "$toc$\n$body$"
+          )
+        }
+#+end_src
+
+** Generating sitemap.xml and rss.xml
+I used [[https://robertwpearce.com/hakyll-pt-1-setup-initial-customization.html][this amazing blog series]] to guide me in making this. I created the ~sitemap.xml~ template and populated it with the required data such as the root and the pages of the site.  For the feed it was as easy as saving a snapshot of the posts as "content" and writing the following:
+
+#+begin_src haskell -n
+...
+  create ["rss.xml"] $ do
+    route idRoute
+    compile $ do
+      let feedCtx = (postCtxWithTags tags)
+      posts <- fmap (take 10) . recentFirst =<<
+        loadAllSnapshots "posts/*" "content"
+      renderRss myFeedConfiguration feedCtx posts
+...
+#+end_src
+
+** Adding finishing touches
+After all this, I added the [[https://ogp.me/][Open Graph Protocol]] to my pages to make them nice to share. I also added the canonical url of the page with a quick ~$root$$url$~. One other minor fix is to limit the number of recent posts in ~index.html~ to 5.
+
+* Footnotes
+
+[fn:1] Static Site Generator.
+
+[fn:2] I use Org for journaling, notes, writing, etc. It's great to be able to use it for my website too.
+
+[fn:3] For some reason, the way to do this by default is to install Cabal with GHC itself, this may be an interesting rabbit-hole if you are so inclined.
+
+[fn:4] Sometimes the juice is not worth the squeeze

@@ -1,0 +1,12 @@
+<ul class="post-list">
+    $for(posts)$
+        <li class="post">
+            <a class="post__title" href="$url$">$title$</a> - $date$
+            <p class="post__description"> $description$ </p>
+            <br>
+            <ul class="tag-list">
+                $tags$
+            </ul>
+        </li>
+    $endfor$
+</ul>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+        <link rel="stylesheet" href="/css/main.css" />
+        
+        <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+        <link rel="shortcut icon" href="/images/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="jrrom" />
+        <link rel="manifest" href="/images/site.webmanifest" />
+
+        <meta name="author" content="jrrom" />
+        <meta name="generator" content="hakyll" />
+        <meta name="robots" content="index, follow">
+
+        <title>jrrom - $title$</title>
+        $if(description)$
+        <meta name="description" content="$description$" />
+        $endif$
+        <link rel="canonical" href="$root$$url$" />
+
+        <meta property="og:title" content="jrrom - $title$" />
+        $if(description)$
+        <meta property="og:description" content="$description$" />
+        $endif$
+        <meta property="og:image" content="https://jrrom.com/images/jrrom.jpg" />
+        <meta property="og:url" content="$root$$url$" />
+        <meta property="og:type" content="article" />
+    </head>
+    <body>
+        <header class="header">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/favicon.svg" alt="jrrom.com homepage">
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="/archive.html">Blog</a>
+                <a href="/lists.html">Lists</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1 class="main--title">$title$</h1>
+            $body$
+        </main>
+
+        <footer class="footer">
+            <div class="footer--icons">
+                <!-- RSS -->
+                <a href="/rss.xml">
+                    <svg width="3em" height="3em">
+                        <use href="/images/logos.svg#rss" />
+                    </svg>
+                </a>
+                <!-- GitHub -->
+                <a href="https://github.com/jrrom" title="My GitHub">
+                    <svg width="3em" height="3em">
+                        <use href="/images/logos.svg#github" />
+                    </svg>
+                </a>
+
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/jerome-baeyens-381332337" title="My LinkedIn">
+                    <svg width="3em" height="3em">
+                        <use href="/images/logos.svg#linkedin" />
+                    </svg>
+                </a>
+
+                <!-- YouTube -->
+                <a href="https://www.youtube.com/@jrrom." title="My YouTube">
+                    <svg width="3em" height="3em">
+                        <use href="/images/logos.svg#youtube" />
+                    </svg>
+                </a>
+
+                <!-- itch.io -->
+                <a href="https://jrrom.itch.io" title="My itch.io">
+                    <svg width="3em" height="3em">
+                        <use href="/images/logos.svg#itchio" />
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="footer--copyright">
+                <p> 2025 - Present © jrrom </p>
+                <p>
+                    Site proudly made with
+                    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>

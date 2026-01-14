@@ -20,8 +20,15 @@
               haskell-language-server
             ]))
             zlib
+            ormolu
+            dart-sass
           ];
+
+          shellHook = ''
+          export PATH=$PATH:~/.local/bin
+          '';
         };
       };
+
 }
 

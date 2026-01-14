@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /lists.html
+
+Sitemap: https://jrrom.com/sitemap.xml
