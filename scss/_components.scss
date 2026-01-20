@@ -1,0 +1,215 @@
+@use "variables" as *;
+
+// ==========================================
+// Header
+// ==========================================
+
+.header {
+    @include create-border($direction: "bottom");
+    @include unlink;
+    
+    font-size: $font-header;
+    
+    &__inner { @include site-bar; }
+
+    &__nav { 
+        @include set-flex (
+            $gap: $space-mini $space-normal,
+            $justify: center,
+            $align: center
+        );
+
+        text-decoration: underline;
+    }
+
+    &__home {
+        @media (width <= $viewpoint-small) { display: none; }
+    }
+
+    &__logo {
+        display: none;
+        padding: $space-mini;
+        margin: 0;
+        @media (width <= $viewpoint-small) { display: block; }
+    }
+}
+
+// Theme Dropdown
+
+.theme-dropdown {
+    @include create-border();
+    @include set-var(color, "fg");
+    @include set-var(background-color, "bg_vignette");  
+}
+
+// ==========================================
+// Main
+// ==========================================
+
+.main {
+    @include set-width;
+    @include club-title-and-subtitle;
+}
+
+.introduction {
+    @include club-title-and-subtitle;
+
+    &__subtitle { margin-bottom: $space-normal; }
+}
+// ==========================================
+// Footer
+// ==========================================
+
+.footer {
+    @include create-border($direction: "top");
+    @include unlink;
+
+    padding: $space-thin 0;
+
+    &__inner { @include site-bar; }
+
+    &__copyright {
+        @include relink;
+
+        p { margin: 0; }
+    }
+}
+
+// ==========================================
+// Vignette
+// ==========================================
+
+.vignette {
+    @include set-flex($wrap: nowrap, $gap: $space-thin);
+    @include vignette-style;
+
+    margin: $space-normal 0;
+
+    p { margin: 0; }
+    
+    &__figure {
+        @include set-flex(column, nowrap, null, center, center);
+
+        img {
+            height: 100%;
+            max-height: $logo-max-height;
+        }
+
+        @media (width <= $viewpoint-small) {
+            display: none;
+        }
+    }
+
+    &__caption { margin-top: $space-thin; }
+}
+
+
+// ==========================================
+// Skills
+// ==========================================
+
+.skills {
+    @include vignette-style;
+    
+    min-inline-size: 0;
+    
+    .tag-list { margin-top: - $space-normal; }
+}
+
+// ==========================================
+// Post
+// ==========================================
+
+// TOC
+
+.main > #toc {
+    margin-top: $space-thin;
+}
+
+#toc {
+    @include vignette-style;
+    
+    display: inline-block;
+
+    ul { list-style: none; }
+    
+    > ul {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+// Post
+
+.post {
+    @include with-date;
+
+
+    &__description {
+        margin: $space-thin 0;
+    }
+
+    &__meta {
+        margin-bottom: $space-normal;
+    }
+}
+
+// ==========================================
+// Taglist
+// ==========================================
+
+.tag-list {
+    @include set-flex($gap: $space-mini);
+
+    list-style: none;
+    
+    margin: 0;
+    padding: 0;
+
+    li {
+        padding: $font-tag-padding;
+        font-size: $font-tag-size;
+    }
+}
+
+// ==========================================
+// Postlist
+// ==========================================
+
+.post-list {
+    @include create-border();
+    list-style: none;
+    padding: $space-thin;
+
+    .post {
+        @include with-date;
+        
+        &__inner {
+            @include set-flex($gap: $space-mini, $align: center);
+
+            @media (width <= $viewpoint-small) {
+                margin-bottom: $space-mini;
+            }
+        }
+        
+        &__title { margin: 0; }
+
+        &__description {
+            margin-top: 0;
+            margin-bottom: $space-mini;
+
+            @media (width <= $viewpoint-small) { display: none; }
+        }
+    }
+}
+
+// ==========================================
+// Individual Tags
+// ==========================================
+
+// Generic Tag
+@include create-tag(".Web", "bg_green", "green");
+
+@include create-tag(".Haskell", "bg_blue", "blue");
+@include create-tag(".CSS, .SCSS", "bg_purple", "purple");
+@include create-tag(".HTML", "bg_yellow", "yellow");

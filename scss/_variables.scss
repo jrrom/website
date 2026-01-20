@@ -1,0 +1,246 @@
+@use "sass:map";
+@use "sass:list";
+
+// ==========================================
+// Details
+// ==========================================
+
+$max-width: 64rem;
+
+$space-mini: 0.5rem;
+$space-thin: 1rem;
+$space-normal: 2rem;
+
+$logo-max-height: 6rem;
+
+$viewpoint-small: 40rem;
+
+// ==========================================
+// Font
+// ==========================================
+
+$headers: (
+    "h1": 2.5rem,
+    "h2": 2rem,
+    "h3": 1.75rem,
+    "h4": 1.5rem,
+    "h5": 1.25rem,
+    "h6": 1.25rem
+);
+
+$font-header: 2.5rem;
+$font-normal: 1.25rem;
+$font-tag-size: 1rem;
+$font-tag-padding: 0.25rem;
+
+$font-normal-line-height: 1.5;
+
+// ==========================================
+// Themes
+// ==========================================
+
+$themes: (
+    dark: (
+        // Background
+        bg       : #1E2326,
+        bg0      : #272E33,
+        bg1      : #2E383C,
+        bg2      : #374145,
+        bg3      : #414B50,
+        bg4      : #495156,
+        bg5      : #4F5B58,
+
+        bg_visual: #4C3743,
+        bg_red   : #493B40,
+        bg_yellow: #45443c,
+        bg_green : #3C4841,
+        bg_blue  : #384B55,
+        bg_purple: #463F48,
+
+        // Colours
+        fg       : #D3C6AA,
+        "red"    : #E67E80,
+        "yellow" : #DBBC7F,
+        "green"  : #A7C080,
+        "blue"   : #7FBBB3,
+        "purple" : #D699B6,
+        "aqua"   : #83C092,
+        "orange" : #E69875,
+
+        // Misc
+        grey0    : #7A8478,
+        grey1    : #859289,
+        grey2    : #9DA9A0,
+        statusline1: #A7C080,
+        statusline2: #D3C6AA,
+        statusline3: #E67E80,
+
+        // Elements
+        bg_border  : #384B55,
+        bg_visited : #3C4841,
+        bg_vignette: #272E33,
+        fg_date    : #495156
+    ),
+
+    light: (
+        // Background
+        bg       : #F2EFDF,
+        bg0      : #FFFBEF,
+        bg1      : #F8F5E4,
+        bg2      : #F2EFDF,
+        bg3      : #EDEADA,
+        bg4      : #E8E5D5,
+        bg5      : #BEC5B2,
+                          
+        bg_visual: #F0F2D4,
+        bg_red   : #FFE7DE,
+        bg_yellow: #FEF2D5,
+        bg_green : #F3F5D9,
+        bg_blue  : #ECF5ED,
+        bg_purple: #FCECED,
+
+        //Colours
+        //        fg       : #5C6A72,
+        fg       : #2E383C,
+        "red"    : #F85552,
+        "yellow" : #DFA000,
+        "green"  : #8DA101,
+        "blue"   : #3A94C5,
+        "purple" : #DF69BA,
+        "aqua"   : #35A77C,
+        "orange" : #F57D26,
+
+        // Misc
+        grey0    : #A6B0A0,
+        grey1    : #939F91,
+        grey2    : #829181,
+        statusline1: #93B259,
+        statusline2: #708089,
+        statusline3: #E66868,
+
+        // Elements
+        bg_border  : #384B55,
+        bg_visited : #3C4841,
+        bg_vignette: #FEF2D5,
+        fg_date    : #939F91
+    )
+);
+
+// ==========================================
+// Mixins
+// ==========================================
+
+@mixin create-border(
+  $colour: "bg_border",
+  $direction: all,
+  $radius: null,
+  $style: solid,
+  $width: 1px
+) {
+  $valid-directions: top right bottom left all;
+
+  @if not list.index($valid-directions, $direction) {
+    @error "Invalid border direction `#{$direction}`. Use one of: #{$valid-directions}";
+  }
+
+  @if $direction == all {
+    border: $width $style var(--#{$colour});
+  } @else {
+    border-#{$direction}: $width $style var(--#{$colour});
+  }
+
+  @if $radius != null {
+    border-radius: $radius;
+  }
+}
+
+@mixin create-tag($name, $bg, $fg) {
+    #{$name} {
+        @include create-border($fg);
+        @include set-var(background-color, $bg);
+        @include set-var(color, $fg);
+
+        a, a:visited {
+            @include set-var(color, $fg);
+        }
+    }
+}
+
+@mixin create-theme($name) {
+    $theme: map.get($themes, $name);
+
+    @if $theme == null {
+        @error "Theme `#{$name}` not found in $themes map.";
+    }
+    
+    @each $variable, $value in $theme {
+        --#{$variable}: #{$value};
+    }
+}
+
+@mixin club-title-and-subtitle {
+    &__title { margin-bottom: 0; }
+    &__subtitle { margin-top: 0; }
+}
+
+@mixin set-var($property, $name) {
+    #{$property}: var(--#{$name});
+}
+
+@mixin unlink {
+    a, a:visited {
+        @include set-var(color, "fg");
+        
+        text-decoration: none;
+    }
+}
+
+@mixin relink {
+    a, a:visited { text-decoration: underline; }
+    a { @include set-var(color, "green"); }
+    a:visited { @include set-var(color, "bg_visited"); }
+}
+
+@mixin set-flex(
+  $direction: row,
+  $wrap: wrap,
+  $gap: null,
+  $justify: flex-start,
+  $align: stretch
+) {
+  display: flex;
+  flex-direction: $direction;
+  flex-wrap: $wrap;
+
+  justify-content: $justify;
+  align-items: $align;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+}
+
+@mixin set-width {
+    padding: 0 $space-thin;
+    max-width: $max-width;
+    margin: 0 auto;
+}
+
+@mixin site-bar {
+    @include set-flex(row, wrap, $space-normal, space-between, stretch);
+    @include set-width;
+}
+
+@mixin vignette-style($padding: $space-thin) {
+    @include create-border("yellow", $radius: $space-thin, $width: 2px);
+    @include set-var(background-color, "bg_vignette");  
+    padding: $padding;
+}
+
+@mixin with-date {
+    &__date {
+        @include set-var(color, "fg_date");
+        
+        margin: 0;
+    }
+}

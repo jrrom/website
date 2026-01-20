@@ -1,0 +1,5 @@
+Ok TODO
+
+1. finish haskell class
+4. style my website (figma learn)
+7. light and dark mode changer

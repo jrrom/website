@@ -3,32 +3,36 @@ title: Home
 ---
 
 <div class="vignette">
-    <p class="vignette__text">
-        Welcome to my blog!
-    </p>
-
     <figure class="vignette__figure">
-        <img class="vignette__image"
-            src="/images/jrrom.jpg" alt="jrrom in a racing kart">
-        <figcaption class="vignette__caption">
+        <img src="/images/favicon.svg" alt="jrrom in a racing kart">
+    </figure>
+        
+    <div class="vignette__text">
+        <p> Hello, I'm <i><a href="https://github.com/jrrom">jrrom</a></i>! I'm currently focused on full-stack development, functional programming, and <i>making my programs function</i>. When I'm not working on projects then I'm either training for my next marathon, reading, or catching up on my studies! Welcome to my website. </p>
+
+        <div class="vignette__caption">
             <svg width="1em" height="1em">
                 <use href="/images/logos.svg#email">
             </svg>
-            web<i>(at)</i>jrrom<i>(dot)</i>com
-        </figcaption>
-    </figure>
+            <span> web<i>(at)</i>jrrom<i>(dot)</i>com </span>
+        </div>
+    </div>
 </div>
 
 <fieldset class="skills">
-    <legend class="skills__title"> Skills </legend>
+    <legend class="skills__title">
+        <h2> Skills </h2>
+    </legend>
     <ul class="tag-list">
         $tags$
     </ul>
 </fieldset>
 
-<p> See the most recent posts or click a tag to see related posts! </p>
+<div class="introduction">
+    <h2 class="introduction__title">Posts</h2>
+    <p class="introduction__subtitle"> See the most recent posts or click a tag to see related posts! </p>
+</div>
 
-<h2>Posts</h2>
 $partial("templates/post-list.html")$
 
 <p><a href="/archive.html">...see more!</a></p>

@@ -1,9 +1,36 @@
 ---
-title: "Lists of things I enjoy"
+title: "Lists"
+description: All my personal essentials in one place.
+toc: true
 ---
 
-#+TITLE:Lists of things I enjoy
+#+TITLE:Lists
 
-* Developers
+* Essential Android Apps
+For the entries where I have given "any," that means I don't consider it a necessity or there are many options.
 
-- TBA
+- [[https://www.ankidroid.org/][AnkiDroid]]
+- [[https://antennapod.org/][AntennaPod]]
+- Any cloud storage
+- Any music player
+- Any payment app
+- Any syncing app
+- [[https://www.digilocker.gov.in/][DigiLocker]]
+- [[https://digiyatrafoundation.com/][DigiYatra]] (even though it's spyware)
+- Any ePUB reader
+- [[https://f-droid.org/][F-Droid]]
+- [[https://www.firefox.com/][Firefox]]
+- [[https://www.fossify.org/apps/][Fossify Apps]]
+  - Calendar
+- [[https://github.com/mobile][GitHub]]
+- [[https://www.irctc.co.in/][IRCTC Rail]]
+- [[https://www.keepassdx.com/][KeePassDX]]
+- [[https://orgro.org/][Orgro]]
+- [[https://www.thunderbird.net/en-US/thunderbird/all/][Thunderbird]]
+- [[https://www.whatsapp.com/][WhatsApp]]
+- [[https://www.wikipedia.org/][Wikipedia]]
+
+* Essential Desktop Programs
+I'm currently using [[https://system76.com/cosmic][COSMIC DE]] and [[https://nixos.org/][NixOS]]. If you want my full configuration then [[https://github.com/jrrom/nixos-jrrom][click here]].
+
+

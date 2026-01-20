@@ -1,12 +1,18 @@
 <ul class="post-list">
     $for(posts)$
-        <li class="post">
-            <a class="post__title" href="$url$">$title$</a> - $date$
-            <p class="post__description"> $description$ </p>
-            <br>
-            <ul class="tag-list">
-                $tags$
-            </ul>
-        </li>
+    <li class="post">
+        <div class="post__inner">
+            <h3 class="post__title">
+                <a href="$url$">
+                    $title$
+                </a>
+            </h3>
+            <p class="post__date"> $date$ </p>
+        </div>
+        <p class="post__description"> $description$ </p>
+        <ul class="tag-list">
+            $tags$
+        </ul>
+    </li>
     $endfor$
 </ul>

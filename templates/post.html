@@ -1,17 +1,22 @@
-<article>
-    <section class="date">
-        Posted on $date$
-    </section>
-    <section class="description">
-        $if(description)$
+<article class="post">
+    <div class="post__meta">
+        <section class="post__date">
+            Posted on $date$
+        </section>
+        <section class="post__description">
+            $if(description)$
             $description$
-        $endif$
-
-        $if(tags)$
-            $tags$
-        $endif$
-    </section>
-    <section>
+            $endif$
+        </section>
+        <section class="post__tags">
+            $if(tags)$
+            <ul class="tag-list">
+                $tags$
+            </ul>
+            $endif$
+        </section>
+    </div>
+    <section class="post__body">
         $body$
     </section>
 </article>

@@ -1,0 +1,79 @@
+@use "variables" as *;
+
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/roboto-condensed-v31-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto Condensed';
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/roboto-condensed-v31-latin-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Epunda Slab';
+  font-style: normal;
+  font-weight: 600;
+  src: url('../fonts/epunda-slab-v2-latin-600.woff2') format('woff2');
+}
+
+:root {
+    @include create-theme(dark);
+}
+
+[data-theme="light"] {
+    @include create-theme(light);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html { height: 100%; }
+
+body {
+    @include set-var(background-color, "bg");
+    @include set-var(color, "fg");
+
+    font-family: "Roboto Condensed", sans-serif;
+    font-weight: 400;
+    font-size: $font-normal;
+    line-height: $font-normal-line-height;
+
+    // So that the footer stays on the bottom
+    
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    main {
+        flex: 1;
+        width: 100%;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Epunda Slab", serif;
+    font-weight: 600;
+}
+
+@each $font, $size in $headers {
+    #{$font} {
+        font-size: $size;
+    }
+}
+
+// Default anchor link values
+@include relink;
+
+svg { vertical-align: middle; }
+
+

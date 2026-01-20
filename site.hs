@@ -27,10 +27,17 @@ main = hakyll $ do
     route   idRoute
     compile copyFileCompiler
 
+  match "fonts/*" $ do
+    route   idRoute
+    compile copyFileCompiler
+
   match "robots.txt" $ do
     route idRoute
     compile copyFileCompiler
 
+  match "js/*" $ do
+    route idRoute
+    compile copyFileCompiler
 
   match "scss/main.scss" $ do
     route   $ constRoute "css/main.css"
@@ -41,7 +48,7 @@ main = hakyll $ do
     let ctx =
           constField "root" root <>
           defaultContext
-    compile $ pandocCompiler
+    compile $ pandocCompilerWith defaultHakyllReaderOptions withToc
       >>= loadAndApplyTemplate "templates/default.html" ctx
       >>= relativizeUrls
         
@@ -95,7 +102,7 @@ main = hakyll $ do
   match "index.html" $ do
     route idRoute
     compile $ do
-      posts <- recentFirst =<< loadAll "posts/*"
+      posts <- loadAll "posts/*" >>= recentFirst >>= return . take 5
 
       let indexCtx =
             listField "posts" (postCtxWithTags tags) (return posts) <>
@@ -174,7 +181,7 @@ indexTagsCtx tags =
 
 postCtxWithTags tags =
   constField "root" root <>
-  dateField "date" "%B %e, %Y" <>
+  dateField "date" "%e %B, %Y" <>
   tagsFieldWith getTags jrromRenderLink (mconcat . intersperse "\n") "tags" tags <>
   defaultContext
 
