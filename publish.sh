@@ -4,3 +4,5 @@
 
 cabal run site clean
 cabal run site build
+
+mv _site docs
