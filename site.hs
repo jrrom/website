@@ -43,10 +43,6 @@ main = hakyllWith config $ do
     route   $ constRoute "css/main.css"
     compile compressScssCompiler
 
-  match "scss/fonts.scss" $ do
-    route $ constRoute "css/fonts.css"
-    compile compressScssCompiler
-
   match "lists.org" $ do
     route   $ setExtension "html"
     let ctx =
