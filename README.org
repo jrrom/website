@@ -1,0 +1,5 @@
+#+TITLE: jrrom's Personal Website
+
+Hello! This is my personal website made with [[https://jaspervdj.be/hakyll/][Hakyll]]. You can read my Blog for a full rundown of why and how I made it.
+
+Thank you for checking it out!
