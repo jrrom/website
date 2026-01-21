@@ -241,7 +241,7 @@ I had a few strict requirements for dealing with icons. [[https://iconify.design
 - No separate files for each SVG icon, this requires using <img> and then I can't style it.
 - No SVG in CSS using the ~d:~ property since [[https://caniuse.com/mdn-css_properties_d][caniuse says only 82% usage]].
 
-  This left me with placing all my SVGs in a single ~logos.svg~ file, adding icons to them and adding them when required with ~<use>~
+This left me with placing all my SVGs in a single ~logos.svg~ file, adding icons to them and adding them when required with ~<use>~
 
 #+begin_src html
 <svg width="1em" height="1em">
