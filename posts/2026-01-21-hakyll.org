@@ -16,8 +16,8 @@ So here I find myself with Hakyll.
 * Setup
 The [[https://github.com/jrrom/website][Git repo]] for this site is available for curious minds. I run a simple [[https://nixos-and-flakes.thiscute.world/development/dev-environments][Nix development flake]] with GHC[fn:3] and [[https://www.haskell.org/cabal/][Cabal]] along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll's [[https://jaspervdj.be/hakyll/tutorials.html][beginner tutorials]] to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.[fn:4]
 
-** Gotcha #1
-Special thanks to [[https://jakebox.github.io/posts/2025-09-12-this_blog.html][Jacob Boxerman's blog post on switching to Hakyll]] for showing how to add metadata to Org documents, you just have to add the same header that you do for Markdown. This is unexpected and does not use Org mode's default metadata tags, so I am noting it down here.
+** Adding metadata to Org
+Special thanks to [[https://jakebox.github.io/posts/2025-09-12-this_blog.html][Jacob Boxerman's blog post on switching to Hakyll]] for showing how to add metadata to Org documents, you just have to add the same header that you do for Markdown. This is unexpected and does not use Org mode's default metadata tags, so I am noting it down here. It must be the first thing in the file otherwise the post metadata will not generate properly.
 
 #+begin_src yaml -n
 ---
@@ -27,7 +27,7 @@ author: jrrom
 ---
 #+end_src
 
-** Gotcha #2
+** Use ~cabal run site~ instead of installing the executable every time
 Hakyll is the library that allows us to build the executable that is the actual SSG, =cabal install= is used to first install the built executable =site= to a directory. This is not updated with =cabal build= as I thought, so I was running the old executable again and again until I realised. Now I use =cabal run site= instead of using install.
 
 * Development
@@ -81,7 +81,7 @@ writeFile "syntax.css" (styleToCss breezeDark)
 
 Then I imported it into my ~default.scss~. I will expand on my SCSS configuration later in this post. But for now I have left it untouched.
 
-*** Gotcha #3
+*** Adding line numbers to the syntax highlighting
 In Org, you have to add -n as a header argument to the code block in order to enable line numbers in the generated HTML. Refer to the following:
 #+begin_src org -n
 ,#+begin_src yaml -n
@@ -149,13 +149,118 @@ I used [[https://robertwpearce.com/hakyll-pt-1-setup-initial-customization.html]
 ** Preloading pages
 A few months ago I saw [[https://youtu.be/-Ln-8QM8KhQ?si=lL1ymKn1sdHI5Yhi][this video]] about McMaster Carr and their blazingly fast™ website and got inspired. I searched online for a bit and found [[https://instant.page/][instant.page]] which preloads links on ~hover~ or ~touchstart~, and it does exactly what it says on the can. So I simply added it to this project. It deals with a lot of edge cases that I don't really want to think about.
 
-*** Gotcha #4
+*** uBlock Origin blocks prefetches
 I learnt that my uBlock Origin blocks prefetches by default after wondering why it wasn't working. So keep that in mind if you plan to experiment with this stuff.
 
 ** Adding finishing touches
 After all this, I added the [[https://ogp.me/][Open Graph Protocol]][fn:5] to my pages. I also added the canonical url of the page with a quick ~$root$$url$~. One other minor fix is to limit the number of recent posts in ~index.html~ to 5, refer to the ~rss.xml~ as an example of only taking the first 5. 
 
+* Design
+** Fun facts
+Some fun facts I discovered while working on the design of the website.
+
+*** Making ~<head>~ Visible
+While messing around I discovered that the ~head~ element and its children can be made visible using CSS. Who knew?[fn:6] Try and see it for yourself!
+
+#+begin_src css -n
+head, head * {
+  display: block;
+}
+
+link::after {
+  content: "Link: " attr(href);
+  background-color: #F00;
+}
+
+meta::after {
+  content: "[" attr(name) attr(property) "]: " attr(content);
+  background-color: #0F0;
+}
+#+end_src
+*** SCSS has first class functions
+This really blew my mind. [[https://sass-lang.com/documentation/values/functions/][Functions]] and [[https://sass-lang.com/documentation/values/mixins/][mixins]] can be passed as regular old values. I wonder what all kinds of shenanigans can be done with this. I will be looking into this in the future for sure.
+
+#+begin_src scss -n
+@use "sass:meta";
+
+@function fibonacci($x) {
+    @if $x <= 1 { @return $x };
+
+    $fib_fn: meta.get-function("fibonacci");
+    @return meta.call($fib_fn, $x - 1) + meta.call($fib_fn, $x - 2);
+}
+
+@function print-var($x) {
+    @debug($x);
+    @return 0;
+}
+
+main {
+    $_1: fibonacci(10);
+    $_2: print-var($_1);
+}
+#+end_src
+
+Yes this actually works.
+
+#+begin_src
+[nix-shell:~/Documents/test]$ sass test.scss 
+test.scss:11 Debug: 55
+
+#+end_src
+** Dealing with light and dark mode
+To implement light and dark mode, I used a combination of [[https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/Use_data_attributes][data attributes]] and [[https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme?Sid=1][prefers-color-scheme]]. The site is dark by default and when the user loads the page there is a simple script in the ~head~ which checks if the system default is equal to ~"light"~, in which case it sets the ~document.documentElement.dataset.theme~ to light. If the theme is already set in local storage then it defaults to the saved value.
+
+#+begin_src js -n
+document.documentElement.dataset.theme =
+    localStorage.getItem("theme") ??
+    (matchMedia("(prefers-color-scheme: light)").matches
+         ? "light"
+         : "dark");
+#+end_src
+
+The styling for which is given below. ~create-theme~ is a special mixin which generates all the required CSS variables according to the colour scheme map provided.
+
+#+begin_src scss -n
+:root {
+    @include create-theme(dark);
+}
+
+[data-theme="light"] {
+    @include create-theme(light);
+}
+#+end_src
+
+The properties are then assigned CSS variables (not Sass ones!) so that they change dynamically with the theme.
+** Dealing with CSS custom properties in Sass
+In Sass, all CSS custom properties (in the form ~--value: ...;~ ) do not evaluate the [[https://sass-lang.com/documentation/style-rules/declarations/#custom-properties][SassScript values set on them]]. It passes it directly to CSS. We have to use interpolation in the form of ~#{$var}~ to get around this issue.
+** Dealing with icons
+I had a few strict requirements for dealing with icons. [[https://iconify.design/docs/usage/][Iconify]] docs were really helpful for listing out all the ways.
+
+- No inline HTML, this is a static site and it gets evaluated every time.
+- No separate files for each SVG icon, this requires using <img> and then I can't style it.
+- No SVG in CSS using the ~d:~ property since [[https://caniuse.com/mdn-css_properties_d][caniuse says only 82% usage]].
+
+  This left me with placing all my SVGs in a single ~logos.svg~ file, adding icons to them and adding them when required with ~<use>~
+
+#+begin_src html
+<svg width="1em" height="1em">
+    <use href="/images/logos.svg#email">
+</svg>
+#+end_src
+
+This is detailed [[https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use][here]]. This has the added benefit of caching all the icons at once since it is all in a single portable file. I recommend it.
+** Dealing with fonts
+This was surprisingly the easiest part. Check out [[https://gwfh.mranftl.com/fonts][google-webfonts-helper]]. I simply picked out my fonts and installed it in ~woff2~ format. If you install fonts directly from Google then you get ~ttf~ files, though I didn't investigate the matter further. The added benefit of google-webfonts-helper is that it also gives you the CSS to copy and put in your website. Amazing.
+* Conclusion
+I was pretty surprised by Hakyll. It is more of a library that allows you to make your own SSG rather than being an SSG itself. The documentation is opaque and not friendly to beginners, but it is worth trudging through it to find the immense power that lies within.
+
+Thank you for reading! 😁
+
+_Final fun fact_: The emoji above is ~GRINNING FACE WITH SMILING EYES~, however in the CLDR (Common Locale Data Repository) it is ~beaming face with smiling eyes~. This is because the Unicode Consortium prefers less subjective forms in its naming conventions. I personally find it funny that someone had to decide that beaming is too emotional of a word to apply to an emoji.[fn:7]
+
 * Footnotes
+
 [fn:1] Static Site Generator.
 
 [fn:2] I use Org for journaling, notes, writing, etc. It's great to be able to use it for my website too.
@@ -165,3 +270,7 @@ After all this, I added the [[https://ogp.me/][Open Graph Protocol]][fn:5] to my
 [fn:4] Sometimes the juice is not worth the squeeze
 
 [fn:5] It makes sites look more appealing when they are shared. It's another neat rabbit hole.
+
+[fn:6] [[https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/head][Turns out DOM elements are really just DOM elements. No magic involved.]]
+
+[fn:7] [[https://github.com/unicode-org/cldr/blob/main/common/annotations/en.xml][See for yourself]].

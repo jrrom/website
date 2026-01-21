@@ -178,6 +178,15 @@ $themes: (
     }
 }
 
+@mixin part($name, $colour, $style: null, $weight: null) {
+    span.#{$name} {
+        @include set-var(color, $colour);
+        
+        @if font-weight != null { font-weight: $weight; }
+        @if font-style  != null { font-style: $style; }
+    }
+}
+
 @mixin club-title-and-subtitle {
     &__title { margin-bottom: 0; }
     &__subtitle { margin-top: 0; }
