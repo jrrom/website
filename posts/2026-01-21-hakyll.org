@@ -9,9 +9,9 @@ toc: true
 * The Beginning
 As a complete newcomer to both [[https://www.haskell.org/][Haskell]] and the world of [[https://en.wikipedia.org/wiki/Static_site_generator][static site generators]], [[https://hackage.haskell.org/package/hakyll][Hakyll]] was definitely not my first choice. The ideal SSG[fn:1] is extensible, understandable, and lightweight while Hakyll likely only fills one of these criteria for those unfamiliar with the Haskell ecosystem. So why Hakyll?
 
-It's because of [[https://pandoc.org/][Pandoc]]. Hakyll is one of the only SSGs that supports [[https://orgmode.org/][Org]] natively (thanks to Pandoc!) besides [[https://gohugo.io/][Hugo]], and learning Haskell is somehow more approachable and comforting than swimming against the tide that is comprehending Hugo's templating system. I personally found it quite unintuitive to get started with Hugo. Sometimes the juice is not worth the squeeze. I investigated alternatives such as [[https://www.getzola.org/][Zola]], which I did enjoy a lot, but found myself fighting with the templating engine once again and missing Org.[fn:2]
+It's because of [[https://pandoc.org/][Pandoc]]. Hakyll is one of the only SSGs that supports [[https://orgmode.org/][Org]] natively (thanks to Pandoc!) besides [[https://gohugo.io/][Hugo]], and learning Haskell is somehow more approachable and comforting than swimming against the tide that is comprehending Hugo's templating system.  I personally found it quite unintuitive to get started with Hugo. Sometimes the juice is not worth the squeeze. I investigated alternatives such as [[https://www.getzola.org/][Zola]], which I did enjoy a lot, but found myself fighting with the templating engine once again and missing Org.[fn:2]
 
-So here I find myself with Hakyll.
+So here I find myself with Hakyll. Note: What I found fascinating is that Org links to other files automatically get corrected to the proper weblinks, it's a small quality of life feature but it matters a lot to me.
 
 * Setup
 The [[https://github.com/jrrom/website][Git repo]] for this site is available for curious minds. I run a simple [[https://nixos-and-flakes.thiscute.world/development/dev-environments][Nix development flake]] with GHC[fn:3] and [[https://www.haskell.org/cabal/][Cabal]], along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll's [[https://jaspervdj.be/hakyll/tutorials.html][beginner tutorials]] to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.[fn:4]
@@ -252,6 +252,12 @@ This left me with placing all my SVGs in a single ~logos.svg~ file, adding icons
 This is detailed [[https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use][here]]. This has the added benefit of caching all the icons at once since it is all in a single portable file. I recommend it.
 ** Dealing with fonts
 This was surprisingly the easiest part. Check out [[https://gwfh.mranftl.com/fonts][google-webfonts-helper]]. I simply picked out my fonts and installed them in ~woff2~ format. If you install fonts directly from Google then you get ~ttf~ files, though I didn't investigate the matter further. The added benefit of google-webfonts-helper is that it also gives you the CSS to copy and put in your website. Amazing.
+
+* Hosting
+** Checking my statistics
+My good friend introduced me to [[https://pagespeed.web.dev/][this site]] which allows me to check if the website is optimised. I found a couple of issues which I had to address. Just keeping it here if anyone is interested and also for my own reference.
+** Using a custom domain and enabling HTTPS with GitHub Pages
+I followed [[https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site][the tutorial]], but was not able to enable HTTPS. This had to do with the fact that I did not account for ~www~ being at the beginning of the domain name. After creating a ~CNAME~ redirection, I was able to proceed successfully.
 * Conclusion
 I was pretty surprised by Hakyll. It is more of a library that allows you to make your own SSG rather than being an SSG itself. The documentation is opaque and not friendly to beginners, but it is worth trudging through it to find the immense power that lies within.
 

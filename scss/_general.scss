@@ -42,7 +42,15 @@ body {
     @include set-var(background-color, "bg");
     @include set-var(color, "fg");
 
-    font-family: "Roboto Condensed", sans-serif;
+    font-family:
+        "Roboto Condensed",
+        "Arial Narrow",
+        "Helvetica Neue Condensed",
+        "Segoe UI",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
     font-weight: 400;
     font-size: $font-normal;
     line-height: $font-normal-line-height;
@@ -61,7 +69,12 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Epunda Slab", serif;
+    font-family:
+        "Epunda Slab",
+        "Roboto Slab",
+        "Georgia",
+        "Times New Roman",
+        serif;
     font-weight: 600;
 }
 
@@ -75,5 +88,4 @@ h1, h2, h3, h4, h5, h6 {
 @include relink;
 
 svg { vertical-align: middle; }
-
 

@@ -1,0 +1,10 @@
+---
+title: "404"
+description: Unable to provide requested resource.
+toc: false
+---
+
+#+TITLE:404
+
+The server was unable to provide the requested resource. Do you want to go back [[file:index.html][home]]?
+

@@ -43,12 +43,25 @@ main = hakyll $ do
     route   $ constRoute "css/main.css"
     compile compressScssCompiler
 
+  match "scss/fonts.scss" $ do
+    route $ constRoute "css/fonts.css"
+    compile compressScssCompiler
+
   match "lists.org" $ do
     route   $ setExtension "html"
     let ctx =
           constField "root" root <>
           defaultContext
     compile $ pandocCompilerWith defaultHakyllReaderOptions withToc
+      >>= loadAndApplyTemplate "templates/default.html" ctx
+      >>= relativizeUrls
+
+  match "404.org" $ do
+    route $ setExtension "html"
+    let ctx =
+          constField "root" root <>
+          defaultContext
+    compile $ pandocCompiler
       >>= loadAndApplyTemplate "templates/default.html" ctx
       >>= relativizeUrls
         
