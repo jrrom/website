@@ -4,3 +4,6 @@
 
 cabal run site clean
 cabal run site build
+
+git add -A
+git commit
