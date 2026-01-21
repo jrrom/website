@@ -11,7 +11,8 @@
                 new Option(theme, theme, theme === current, theme === current)
             );
         });
-        select.className = "theme-dropdown";
+        select.id = "theme-dropdown";
+        select.setAttribute("aria-label", "Theme selector");
 
         return select;
     }
@@ -22,7 +23,6 @@
         document.documentElement.dataset.theme = e.target.value;
         localStorage.setItem("theme", e.target.value);
     });
-
 
     document
         .querySelector(".header__nav")

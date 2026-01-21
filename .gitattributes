@@ -1,2 +1,2 @@
-_site/* linguist-vendored
+docs/* linguist-vendored
 *.html linguist-detectable=false

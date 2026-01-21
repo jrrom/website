@@ -103,6 +103,9 @@
     &__caption { margin-top: $space-thin; }
 }
 
+.special-link {
+    a, a:visited { @include set-var(color, "green"); }
+}
 
 // ==========================================
 // Skills

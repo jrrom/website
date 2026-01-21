@@ -20,7 +20,7 @@ root = "https://jrrom.com"
 --------------------------------------------------------------------------------
 
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith config $ do
   tags <- buildTags "posts/*" (fromCapture "tags/*.html")
 
   match "images/*" $ do
@@ -153,6 +153,13 @@ main = hakyll $ do
 
 
   match "templates/*" $ compile templateBodyCompiler
+  
+--------------------------------------------------------------------------------
+-- Write to docs/ instead of _site
+
+config :: Configuration
+config = defaultConfiguration
+  { destinationDirectory = "docs" }
 
 --------------------------------------------------------------------------------
 

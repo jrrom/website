@@ -49,8 +49,8 @@
             <div class="header__inner">
                 <a href="../" class="header__home"> jrrom </a>
                 <figure class="header__logo">
-                    <a href="../">
-                        <img src="../images/favicon.svg" class="header__logo" />
+                    <a href="../" title="Go back to the index page">
+                        <img src="../images/favicon.svg" width="48" height="48" class="header__logo" alt="My logo" />
                     </a>
                 </figure>
                 <nav class="header__nav">
@@ -119,13 +119,19 @@
 <li><a href="#dealing-with-icons" id="toc-dealing-with-icons"><span class="toc-section-number">4.4</span> Dealing with icons</a></li>
 <li><a href="#dealing-with-fonts" id="toc-dealing-with-fonts"><span class="toc-section-number">4.5</span> Dealing with fonts</a></li>
 </ul></li>
-<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">5</span> Conclusion</a></li>
-<li><a href="#footnotes" id="toc-footnotes"><span class="toc-section-number">6</span> Footnotes</a></li>
+<li><a href="#hosting" id="toc-hosting"><span class="toc-section-number">5</span> Hosting</a>
+<ul>
+<li><a href="#checking-my-statistics" id="toc-checking-my-statistics"><span class="toc-section-number">5.1</span> Checking my statistics</a></li>
+<li><a href="#using-a-custom-domain-and-enabling-https-with-github-pages" id="toc-using-a-custom-domain-and-enabling-https-with-github-pages"><span class="toc-section-number">5.2</span> Using a custom domain and enabling HTTPS with GitHub Pages</a></li>
+<li><a href="#dealing-with-docs" id="toc-dealing-with-docs"><span class="toc-section-number">5.3</span> Dealing with <code>docs/</code></a></li>
+</ul></li>
+<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">6</span> Conclusion</a></li>
+<li><a href="#footnotes" id="toc-footnotes"><span class="toc-section-number">7</span> Footnotes</a></li>
 </ul></div>
 <h1 data-number="1" id="the-beginning"><span class="header-section-number">1</span> The Beginning</h1>
 <p>As a complete newcomer to both <a href="https://www.haskell.org/">Haskell</a> and the world of <a href="https://en.wikipedia.org/wiki/Static_site_generator">static site generators</a>, <a href="https://hackage.haskell.org/package/hakyll">Hakyll</a> was definitely not my first choice. The ideal SSG<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> is extensible, understandable, and lightweight while Hakyll likely only fills one of these criteria for those unfamiliar with the Haskell ecosystem. So why Hakyll?</p>
 <p>It’s because of <a href="https://pandoc.org/">Pandoc</a>. Hakyll is one of the only SSGs that supports <a href="https://orgmode.org/">Org</a> natively (thanks to Pandoc!) besides <a href="https://gohugo.io/">Hugo</a>, and learning Haskell is somehow more approachable and comforting than swimming against the tide that is comprehending Hugo’s templating system. I personally found it quite unintuitive to get started with Hugo. Sometimes the juice is not worth the squeeze. I investigated alternatives such as <a href="https://www.getzola.org/">Zola</a>, which I did enjoy a lot, but found myself fighting with the templating engine once again and missing Org.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<p>So here I find myself with Hakyll.</p>
+<p>So here I find myself with Hakyll. Note: What I found fascinating is that Org links to other files automatically get corrected to the proper weblinks, it’s a small quality of life feature but it matters a lot to me.</p>
 <h1 data-number="2" id="setup"><span class="header-section-number">2</span> Setup</h1>
 <p>The <a href="https://github.com/jrrom/website">Git repo</a> for this site is available for curious minds. I run a simple <a href="https://nixos-and-flakes.thiscute.world/development/dev-environments">Nix development flake</a> with GHC<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> and <a href="https://www.haskell.org/cabal/">Cabal</a>, along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll’s <a href="https://jaspervdj.be/hakyll/tutorials.html">beginner tutorials</a> to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
 <h2 data-number="2.1" id="adding-metadata-to-org"><span class="header-section-number">2.1</span> Adding metadata to Org</h2>
@@ -268,7 +274,7 @@
 <span id="cb10-17"><a href="#cb10-17"></a>    <span class="va">$_2</span><span class="ch">:</span> <span class="fu">print-var(</span><span class="va">$_1</span><span class="fu">)</span><span class="op">;</span></span>
 <span id="cb10-18"><a href="#cb10-18"></a>}</span></code></pre></div>
 <p>Yes this actually works.</p>
-<pre><code>[nix-shell:~/Documents/test]$ sass test.scss 
+<pre class="-n"><code>[nix-shell:~/Documents/test]$ sass test.scss 
 test.scss:11 Debug: 55
 
 </code></pre>
@@ -298,17 +304,31 @@ test.scss:11 Debug: 55
 <li>No SVG in CSS using the <code>d:</code> property since <a href="https://caniuse.com/mdn-css_properties_d">caniuse says only 82% usage</a>.</li>
 </ul>
 <p>This left me with placing all my SVGs in a single <code>logos.svg</code> file, adding icons to them and adding them when required with <code>&lt;use&gt;</code></p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">svg</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="dt">&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">use</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;/images/logos.svg#email&quot;</span><span class="dt">&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">svg</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14" data-startFrom><pre class="sourceCode numberSource html numberLines"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">&lt;</span><span class="kw">svg</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="dt">&lt;</span><span class="kw">use</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;/images/logos.svg#email&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="dt">&lt;/</span><span class="kw">svg</span><span class="dt">&gt;</span></span></code></pre></div>
 <p>This is detailed <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use">here</a>. This has the added benefit of caching all the icons at once since it is all in a single portable file. I recommend it.</p>
 <h2 data-number="4.5" id="dealing-with-fonts"><span class="header-section-number">4.5</span> Dealing with fonts</h2>
 <p>This was surprisingly the easiest part. Check out <a href="https://gwfh.mranftl.com/fonts">google-webfonts-helper</a>. I simply picked out my fonts and installed them in <code>woff2</code> format. If you install fonts directly from Google then you get <code>ttf</code> files, though I didn’t investigate the matter further. The added benefit of google-webfonts-helper is that it also gives you the CSS to copy and put in your website. Amazing.</p>
-<h1 data-number="5" id="conclusion"><span class="header-section-number">5</span> Conclusion</h1>
+<h1 data-number="5" id="hosting"><span class="header-section-number">5</span> Hosting</h1>
+<h2 data-number="5.1" id="checking-my-statistics"><span class="header-section-number">5.1</span> Checking my statistics</h2>
+<p>My good friend introduced me to <a href="https://pagespeed.web.dev/">this site</a> which allows me to check if the website is optimised. I found a couple of issues which I had to address. Just keeping it here if anyone is interested and also for my own reference.</p>
+<h2 data-number="5.2" id="using-a-custom-domain-and-enabling-https-with-github-pages"><span class="header-section-number">5.2</span> Using a custom domain and enabling HTTPS with GitHub Pages</h2>
+<p>I followed <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site">the tutorial</a>, but was not able to enable HTTPS. This had to do with the fact that I did not account for <code>www</code> being at the beginning of the domain name. After creating a <code>CNAME</code> redirection, I was able to proceed successfully.</p>
+<h2 data-number="5.3" id="dealing-with-docs"><span class="header-section-number">5.3</span> Dealing with <code>docs/</code></h2>
+<p>GitHub Pages makes it easy to host by either selecting the <code>root</code> directory, the <code>docs</code> directory in root or a different branch. It was surprisingly easy to tell Hakyll to build to <code>docs/</code> instead of <code>_site</code> . Just use <code>hakyllWith</code> and you’re done!</p>
+<div class="sourceCode" id="cb15" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1"></a>main <span class="ot">=</span> hakyllWith config <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="op">...</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co">-- Write to docs/ instead of _site</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="ot">config ::</span> <span class="dt">Configuration</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>config <span class="ot">=</span> defaultConfiguration</span>
+<span id="cb15-7"><a href="#cb15-7"></a>  { destinationDirectory <span class="ot">=</span> <span class="st">&quot;docs&quot;</span> }</span></code></pre></div>
+<h1 data-number="6" id="conclusion"><span class="header-section-number">6</span> Conclusion</h1>
 <p>I was pretty surprised by Hakyll. It is more of a library that allows you to make your own SSG rather than being an SSG itself. The documentation is opaque and not friendly to beginners, but it is worth trudging through it to find the immense power that lies within.</p>
 <p>Thank you for reading! 😁</p>
 <p><u>Final fun fact</u>: The emoji above is <code>GRINNING FACE WITH SMILING EYES</code>, however in the CLDR (Common Locale Data Repository) it is <code>beaming face with smiling eyes</code>. This is because the Unicode Consortium prefers less subjective forms in its naming conventions. I personally find it funny that someone had to decide that beaming is too emotional of a word to apply to an emoji.<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></p>
-<h1 data-number="6" id="footnotes"><span class="header-section-number">6</span> Footnotes</h1>
+<h1 data-number="7" id="footnotes"><span class="header-section-number">7</span> Footnotes</h1>
 <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
@@ -330,7 +350,7 @@ test.scss:11 Debug: 55
             <div class="footer__inner">
                 <div class="footer__icons">
                     <!-- RSS -->
-                    <a href="../rss.xml">
+                    <a href="../rss.xml" title="My RSS feed">
                         <svg width="3em" height="3em">
                             <use href="../images/logos.svg#rss"></use>
                         </svg>

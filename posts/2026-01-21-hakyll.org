@@ -258,6 +258,19 @@ This was surprisingly the easiest part. Check out [[https://gwfh.mranftl.com/fon
 My good friend introduced me to [[https://pagespeed.web.dev/][this site]] which allows me to check if the website is optimised. I found a couple of issues which I had to address. Just keeping it here if anyone is interested and also for my own reference.
 ** Using a custom domain and enabling HTTPS with GitHub Pages
 I followed [[https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site][the tutorial]], but was not able to enable HTTPS. This had to do with the fact that I did not account for ~www~ being at the beginning of the domain name. After creating a ~CNAME~ redirection, I was able to proceed successfully.
+** Dealing with ~docs/~
+GitHub Pages makes it easy to host by either selecting the ~root~ directory, the ~docs~ directory in root or a different branch. It was surprisingly easy to tell Hakyll to build to ~docs/~ instead of ~_site~ . Just use ~hakyllWith~ and you're done!
+
+#+begin_src haskell -n
+main = hakyllWith config $ do
+  ...
+
+-- Write to docs/ instead of _site
+config :: Configuration
+config = defaultConfiguration
+  { destinationDirectory = "docs" }
+#+end_src
+
 * Conclusion
 I was pretty surprised by Hakyll. It is more of a library that allows you to make your own SSG rather than being an SSG itself. The documentation is opaque and not friendly to beginners, but it is worth trudging through it to find the immense power that lies within.
 

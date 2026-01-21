@@ -1,5 +1,6 @@
 @use "sass:map";
 @use "sass:list";
+@use "sass:color";
 
 // ==========================================
 // Details
@@ -104,7 +105,7 @@ $themes: (
         fg       : #2E383C,
         "red"    : #F85552,
         "yellow" : #DFA000,
-        "green"  : #8DA101,
+        "green"  : color.adjust(#8DA101, $lightness: -4%, $space: oklch),
         "blue"   : #3A94C5,
         "purple" : #DF69BA,
         "aqua"   : #35A77C,
