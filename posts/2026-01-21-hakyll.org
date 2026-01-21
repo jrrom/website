@@ -14,7 +14,7 @@ It's because of [[https://pandoc.org/][Pandoc]]. Hakyll is one of the only SSGs 
 So here I find myself with Hakyll.
 
 * Setup
-The [[https://github.com/jrrom/website][Git repo]] for this site is available for curious minds. I run a simple [[https://nixos-and-flakes.thiscute.world/development/dev-environments][Nix development flake]] with GHC[fn:3] and [[https://www.haskell.org/cabal/][Cabal]] along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll's [[https://jaspervdj.be/hakyll/tutorials.html][beginner tutorials]] to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.[fn:4]
+The [[https://github.com/jrrom/website][Git repo]] for this site is available for curious minds. I run a simple [[https://nixos-and-flakes.thiscute.world/development/dev-environments][Nix development flake]] with GHC[fn:3] and [[https://www.haskell.org/cabal/][Cabal]], along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll's [[https://jaspervdj.be/hakyll/tutorials.html][beginner tutorials]] to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.[fn:4]
 
 ** Adding metadata to Org
 Special thanks to [[https://jakebox.github.io/posts/2025-09-12-this_blog.html][Jacob Boxerman's blog post on switching to Hakyll]] for showing how to add metadata to Org documents. You just have to add the same header that you do for Markdown. This is unexpected and does not use Org mode's default metadata tags, so I am noting it down here. It must be the first thing in the file; otherwise, the post metadata will not generate properly.
@@ -34,7 +34,7 @@ Hakyll is the library that allows us to build the executable that is the actual 
 For general tutorials, refer to [[https://jaspervdj.be/hakyll/tutorials.html][the official site]]! Development with Hakyll in my experience is more like developing your own SSG with the tools that Hakyll provides. It has a lot of power in its customisability.
 
 ** Adding collected tags to each post
-I followed the [[https://javran.github.io/posts/2014-03-01-add-tags-to-your-hakyll-blog.html][helpful tutorial linked here]] and ended up with a basic tag setup. However, I was unsatisfied by the general lack of HTML modification capabilities so I had to use the library functions to create the markup structure that I wanted
+I followed the [[https://javran.github.io/posts/2014-03-01-add-tags-to-your-hakyll-blog.html][helpful tutorial linked here]] and ended up with a basic tag setup. However, I was unsatisfied by the general lack of HTML modification capabilities. I had to use the library functions to create the markup structure that I wanted
 
 For the index page, I made an ~indexTagsCtx~ that collects all the tags from all the posts and arranges them by the number of posts that contain the specified tag.
 
@@ -91,7 +91,7 @@ In Org, you have to add -n as a header argument to the code block in order to en
 #+end_src
 
 ** Adding a Table of Contents (TOC)
-First, I would like to link to [[https://github.com/jaspervdj/hakyll][Hakyll's official website source code]] where the proper solution to this problem is given. I couldn't find mentions of this anywhere else. Next I would like to link to [[https://argumatronic.com/posts/2018-01-16-pandoc-toc.html][Argumatronic's blog on Pandoc TOC generation]], though it is outdated now, I used the methods described to successfully only generate the TOC for posts with ~toc~ in the metadata. As seen below, if ~toc~ exists then I pass ~withToc~, else I pass ~defaultHakyllWriterOptions~.
+First, I would like to link to [[https://github.com/jaspervdj/hakyll][Hakyll's official website source code]] where the proper solution to this problem is given. I couldn't find mentions of this anywhere else. Next, I would like to link to [[https://argumatronic.com/posts/2018-01-16-pandoc-toc.html][Argumatronic's blog on Pandoc TOC generation]], though it is outdated now, I used the methods described to successfully only generate the TOC for posts with ~toc~ in the metadata. As seen below, if ~toc~ exists then I pass ~withToc~, else I pass ~defaultHakyllWriterOptions~.
 
 #+begin_src haskell -n
 main :: IO ()
@@ -233,7 +233,7 @@ The styling is given below. ~create-theme~ is a special mixin which generates al
 
 The properties are then assigned CSS variables (not Sass ones!) so that they change dynamically with the theme.
 ** Dealing with CSS custom properties in Sass
-In Sass, all CSS custom properties (in the form ~--value: ...;~ ) do not evaluate the any [[https://sass-lang.com/documentation/style-rules/declarations/#custom-properties][SassScript values assigned to them]]. This is because they get passed directly to the final CSS file. We have to use interpolation in the form of ~#{$var}~ to get around this issue.
+In Sass, all CSS custom properties (in the form ~--value: ...;~ ) do not evaluate any [[https://sass-lang.com/documentation/style-rules/declarations/#custom-properties][SassScript values assigned to them]]. This is because they get passed directly to the final CSS file. We have to use interpolation in the form of ~#{$var}~ to get around this issue.
 ** Dealing with icons
 I had a few strict requirements for dealing with icons. [[https://iconify.design/docs/usage/][Iconify]] docs were really helpful for listing out all the ways.
 
