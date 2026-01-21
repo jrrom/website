@@ -160,6 +160,8 @@ $themes: (
         @include set-var(background-color, $bg);
         @include set-var(color, $fg);
 
+        font-weight: 900;
+        
         a, a:visited {
             @include set-var(color, $fg);
         }

@@ -203,7 +203,7 @@ main {
 
 Yes this actually works.
 
-#+begin_src
+#+begin_src -n
 [nix-shell:~/Documents/test]$ sass test.scss 
 test.scss:11 Debug: 55
 
@@ -243,7 +243,7 @@ I had a few strict requirements for dealing with icons. [[https://iconify.design
 
 This left me with placing all my SVGs in a single ~logos.svg~ file, adding icons to them and adding them when required with ~<use>~
 
-#+begin_src html
+#+begin_src html -n
 <svg width="1em" height="1em">
     <use href="/images/logos.svg#email">
 </svg>

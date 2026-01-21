@@ -175,8 +175,9 @@ indexRenderTags :: Tags -> Compiler String
 indexRenderTags tags =
   renderTags
   (\tag url count _ _ ->
-      "<li class=\"" ++ tag ++ "\"> <a href=\"" ++ url ++ "\">" ++ tag ++ "</a>" ++
-      "<i> " ++ (show count) ++ " </i>" ++ "</li>")
+      "<li class=\"" ++ tag ++ "\"> <a href=\"" ++ url ++ "\">"
+      ++ tag ++
+      "</a>" ++ "<i> " ++ (show count) ++ " </i>" ++ "</li>")
   unlines
   (sortTagsBy postNumTagSort tags)
 

@@ -36,7 +36,7 @@
 
 // Theme Dropdown
 
-.theme-dropdown {
+#theme-dropdown {
     @include create-border();
     @include set-var(color, "fg");
     @include set-var(background-color, "bg_vignette");  
