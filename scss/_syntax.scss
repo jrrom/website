@@ -62,3 +62,16 @@ code {
     @include part(wa, "red");                    /* Warning */                   
 }                                                                                             
 
+// Fix for blocks without sourceCode or given language
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Fix inline monospace
+:not(pre) > code {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
