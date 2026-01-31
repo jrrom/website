@@ -201,7 +201,7 @@ main {
 }
 #+end_src
 
-Yes this actually works.
+Yes, this actually works.
 
 #+begin_src -n
 [nix-shell:~/Documents/test]$ sass test.scss 

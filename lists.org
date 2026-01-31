@@ -11,22 +11,25 @@ For the entries where I have given "any," that means I don't consider it a neces
 
 - [[https://www.ankidroid.org/][AnkiDroid]]
 - [[https://antennapod.org/][AntennaPod]]
-- Any cloud storage
-- Any music player
+- Any 2FA authentication app
+- Any cloud storage app
 - Any payment app
-- Any syncing app
 - [[https://www.digilocker.gov.in/][DigiLocker]]
 - [[https://digiyatrafoundation.com/][DigiYatra]] (even though it's spyware)
-- Any ePUB reader
 - [[https://f-droid.org/][F-Droid]]
 - [[https://www.firefox.com/][Firefox]]
 - [[https://www.fossify.org/apps/][Fossify Apps]]
-  - Calendar
-- [[https://github.com/mobile][GitHub]]
+- [[https://github.com/][GitHub]]
 - [[https://www.irctc.co.in/][IRCTC Rail]]
 - [[https://www.keepassdx.com/][KeePassDX]]
+- [[https://gitlab.com/coolreader-ng/lxreader][LxReader]]
+- [[https://www.mappls.com/][Mappls]]
 - [[https://orgro.org/][Orgro]]
+- [[https://github.com/orgzly-revived/orgzly-android-revived][Orgzly Revived]]
+- [[https://signal.org/download/][Signal]]
+- [[https://termux.dev/en/][Termux]]
 - [[https://www.thunderbird.net/en-US/thunderbird/all/][Thunderbird]]
+- [[https://www.videolan.org/vlc/][VLC]]
 - [[https://www.whatsapp.com/][WhatsApp]]
 - [[https://www.wikipedia.org/][Wikipedia]]
 
