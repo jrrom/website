@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+        <link rel="stylesheet" href="../css/main.css" />
+        
+        <link rel="icon" type="image/png" href="../images/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="../images/favicon.svg" />
+        <link rel="shortcut icon" href="../images/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="jrrom" />
+        <link rel="manifest" href="../images/site.webmanifest" />
+
+        <meta name="author" content="jrrom" />
+        <meta name="generator" content="hakyll" />
+        <meta name="robots" content="index, follow">
+
+        <title>jrrom - Solving N-Queens with PureScript!</title>
+        
+        <meta name="description" content="Solving N-Queens using recursive backtracking and publishing it as a Spago package." />
+        
+        <link rel="canonical" href="https://jrrom.com/posts/2026-02-25-nqueens.html" />
+
+        <meta property="og:title" content="jrrom - Solving N-Queens with PureScript!" />
+        
+        <meta property="og:description" content="Solving N-Queens using recursive backtracking and publishing it as a Spago package." />
+        
+        <meta property="og:image" content="https://jrrom.com/images/jrrom.jpg" />
+        <meta property="og:url" content="https://jrrom.com/posts/2026-02-25-nqueens.html" />
+        <meta property="og:type" content="article" />
+
+        <!-- Execute right now -->
+        <script>
+            document.documentElement.dataset.theme =
+                localStorage.getItem("theme") ??
+                (matchMedia("(prefers-color-scheme: light)").matches
+                    ? "light"
+                    : "dark");
+        </script>
+        
+        <!-- Preload in the background -->
+        <script src="../js/instantpage.js" type="module" defer></script>
+        <script src="../js/main.js" defer></script>
+    </head>
+    <body>
+        <header class="header">
+            <div class="header__inner">
+                <a href="../" class="header__home"> jrrom </a>
+                <figure class="header__logo">
+                    <a href="../" title="Go back to the index page">
+                        <img src="../images/favicon.svg" width="48" height="48" class="header__logo" alt="My logo" />
+                    </a>
+                </figure>
+                <nav class="header__nav">
+                    <a href="../archive.html">Blog</a>
+                    <a href="../lists.html">Lists</a>
+                </nav>
+            </div>
+        </header>
+
+        <main role="main" class="main">
+            <h1 class="main__title">Solving N-Queens with PureScript!</h1>
+            <article class="post">
+    <div class="post__meta">
+        <section class="post__date">
+            Posted on 25 February, 2026
+        </section>
+        <section class="post__description">
+            
+            Solving N-Queens using recursive backtracking and publishing it as a Spago package.
+            
+        </section>
+        <section class="post__tags">
+            
+            <ul class="tag-list">
+                <li class="Web"><a href="../tags/Web.html">Web</a></li>
+<li class="PureScript"><a href="../tags/PureScript.html">PureScript</a></li>
+<li class="Nix"><a href="../tags/Nix.html">Nix</a></li>
+<li class="Perl"><a href="../tags/Perl.html">Perl</a></li>
+            </ul>
+            
+        </section>
+    </div>
+    <section class="post__body">
+        <div id="toc"><ul>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a>
+<ul>
+<li><a href="#about-n-queens" id="toc-about-n-queens"><span class="toc-section-number">1.1</span> About N-Queens</a></li>
+</ul></li>
+<li><a href="#links" id="toc-links"><span class="toc-section-number">2</span> Links</a></li>
+<li><a href="#setup" id="toc-setup"><span class="toc-section-number">3</span> Setup</a></li>
+<li><a href="#code-review" id="toc-code-review"><span class="toc-section-number">4</span> Code Review</a></li>
+<li><a href="#publishing" id="toc-publishing"><span class="toc-section-number">5</span> Publishing</a>
+<ul>
+<li><a href="#spago-publish-subdir-is-not-allowed-or-implemented" id="toc-spago-publish-subdir-is-not-allowed-or-implemented"><span class="toc-section-number">5.1</span> Spago publish <code class="verbatim">subdir</code> is not allowed or implemented</a></li>
+<li><a href="#fun-with-perl" id="toc-fun-with-perl"><span class="toc-section-number">5.2</span> Fun with Perl</a></li>
+</ul></li>
+<li><a href="#frontend" id="toc-frontend"><span class="toc-section-number">6</span> Frontend</a></li>
+<li><a href="#fixing-eglot" id="toc-fixing-eglot"><span class="toc-section-number">7</span> Fixing Eglot</a></li>
+<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">8</span> Conclusion</a></li>
+</ul></div>
+<h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction</h1>
+<p>Two weeks ago, my professor gave everyone an assignment to cover a specific part of the Algorithms syllabus. I decided to choose the N-Queens problem because it is:</p>
+<ul>
+<li>Fun to visualise</li>
+<li>Easily understandable…</li>
+</ul>
+<p>… and also because its recursive properties would allow me to test my functional programming skills. The second matter was the choice of programming language. I could have gone for Haskell but I wanted to make a live web demo, then I found <a href="https://github.com/purescript/purescript">PureScript</a>. (Well I knew about it for some time but I finally got a cool chance to use it!)</p>
+<h2 data-number="1.1" id="about-n-queens"><span class="header-section-number">1.1</span> About N-Queens</h2>
+<p>From <a href="https://en.wikipedia.org/wiki/Eight_queens_puzzle">Wikipedia</a>:</p>
+<blockquote>
+<p>The eight queens puzzle is the problem of placing eight chess queens on an 8×8 chessboard so that no two queens threaten each other; thus, a solution requires that no two queens share the same row, column, or diagonal.</p>
+</blockquote>
+<p>The N-Queens problem is the same principle applied to an <code class="verbatim">n x n</code> chessboard with an <code class="verbatim">n</code> number of queens.</p>
+<h1 data-number="2" id="links"><span class="header-section-number">2</span> Links</h1>
+<ul>
+<li><u>GitHub repo</u>: <a href="https://github.com/jrrom/purescript-nqueens">https://github.com/jrrom/purescript-nqueens</a></li>
+<li><u>Official link on PureScript Pursuit</u>: <a href="https://pursuit.purescript.org/packages/purescript-nqueens">https://pursuit.purescript.org/packages/purescript-nqueens</a></li>
+<li><u>Official N-Queens demo</u>: <a href="https://jrrom.github.io/purescript-nqueens/">https://jrrom.github.io/purescript-nqueens/</a></li>
+</ul>
+<h1 data-number="3" id="setup"><span class="header-section-number">3</span> Setup</h1>
+<p>On NixOS, there is the amazing <a href="https://github.com/thomashoneyman/purescript-overlay">thomashoneyman/purescript-overlay</a> which provides the main utilities of <code class="verbatim">purs</code>, <code class="verbatim">spago</code> and <code class="verbatim">purescript-language-server</code>. The setup was a breeze and I highly recommend it. Then I made a directory and ran <code class="verbatim">spago init</code> to get the default Spago project skeleton. For the uninitiated, <code class="verbatim">purs</code> is the compiler and <code class="verbatim">spago</code> is the build system similar to <code class="verbatim">cargo</code> in Rust.</p>
+<h1 data-number="4" id="code-review"><span class="header-section-number">4</span> Code Review</h1>
+<p>The first step in solving any logical question is to define the parameters and bounds that it operates within. A board can be defined as follows:</p>
+<div class="sourceCode" id="cb1" data-startFrom><pre class="sourceCode numberSource purescript numberLines"><code class="sourceCode purescript"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">-- | `type Position { row :: Int, col :: Int }`</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">type</span> <span class="dt">Position</span> <span class="ot">=</span> {<span class="ot"> row ::</span> <span class="dt">Int</span>,<span class="ot"> col ::</span> <span class="dt">Int</span> }</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">-- | `newtype Board { size :: Int, queens :: List Position }`</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">newtype</span> <span class="dt">Board</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="ot">=</span> <span class="dt">Board</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    {<span class="ot"> size ::</span> <span class="dt">Int</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>    ,<span class="ot"> queens ::</span> <span class="dt">List</span> <span class="dt">Position</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>    }</span></code></pre></div>
+<p>We only need to represent the position of the queens and not the entire board because it is mostly empty space. A board is of dimensions <code class="verbatim">n x n</code> where <code class="verbatim">n</code> is given as <code class="verbatim">size</code> here. <code class="verbatim">newtype</code> in PureScript means that the <code class="verbatim">Board</code> is a unique type and not a type alias like <code class="verbatim">Position</code> is; the <code class="verbatim">Board</code> has to be explicitly constructed.</p>
+<p>Next we have to lay out the scope of the problem. We know that two queens can only attack each other if they are on the same row, column or diagonal.</p>
+<div class="sourceCode" id="cb2" data-startFrom><pre class="sourceCode numberSource purescript numberLines"><code class="sourceCode purescript"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">-- | Check if the `Position` can be attacked.</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ot">canAttack ::</span> <span class="dt">Position</span> <span class="ot">-&gt;</span> <span class="dt">Position</span> <span class="ot">-&gt;</span> <span class="dt">Boolean</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>canAttack { row<span class="op">:</span> r1, col<span class="op">:</span> c1 } { row<span class="op">:</span> r2, col<span class="op">:</span> c2} <span class="ot">=</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  r1 <span class="op">==</span> r2</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="op">||</span> c1 <span class="op">==</span> c2</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="op">||</span> <span class="fu">abs</span> (r1 <span class="op">-</span> r2) <span class="op">==</span> <span class="fu">abs</span> (c1 <span class="op">-</span> c2)</span></code></pre></div>
+<p>Fun fact: <code class="verbatim">abs (r1 - r2) =</code> abs (c1 - c2)= is derived from the slope equation where <code class="verbatim">m</code> is set to 1 or -1.</p>
+<div class="sourceCode" id="cb3" data-startFrom><pre class="sourceCode numberSource purescript numberLines"><code class="sourceCode purescript"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">-- | Check if the `Position` is valid by comparing against `qs :: List Position`.</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ot">valid ::</span> <span class="dt">Board</span> <span class="ot">-&gt;</span> <span class="dt">Position</span> <span class="ot">-&gt;</span> <span class="dt">Boolean</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>valid (<span class="dt">Board</span> { size<span class="op">:</span> _, queens<span class="op">:</span> qs }) p <span class="ot">=</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="fu">not</span> <span class="op">$</span> <span class="fu">any</span> (canAttack p) qs</span></code></pre></div>
+<p>This function helps us check whether a new position given can attack or be attacked by any existing queens. This will come in handy later when we will have to prune any possible solutions which are not valid. I really like <code class="verbatim">any</code>; it behaves as a <code class="verbatim">foldr</code> with <code class="verbatim">||</code> on a map of function <code class="verbatim">a -&gt; Bool</code> acting on array <code class="verbatim">[a]</code>, or in human terms: if any queen can attack the new queen, then simplify to <code class="verbatim">true</code>. That case means a <code class="verbatim">Board</code> is not valid, so we use <code class="verbatim">not</code>.</p>
+<div class="sourceCode" id="cb4" data-startFrom><pre class="sourceCode numberSource purescript numberLines"><code class="sourceCode purescript"><span id="cb4-1"><a href="#cb4-1"></a><span class="ot">nQueensNaive ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">List</span> <span class="dt">Board</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>nQueensNaive size <span class="ot">=</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="kw">let</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="ot">    next ::</span> <span class="dt">Board</span> <span class="ot">-&gt;</span> <span class="dt">List</span> <span class="dt">Board</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    next board<span class="op">@</span>(<span class="dt">Board</span> { size<span class="op">:</span> n, queens<span class="op">:</span> qs }) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>      <span class="kw">let</span> r <span class="ot">=</span> <span class="fu">length</span> qs</span>
+<span id="cb4-7"><a href="#cb4-7"></a>      col <span class="ot">&lt;-</span> <span class="fu">range</span> <span class="dv">0</span> (n <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>      <span class="kw">let</span> q' <span class="ot">=</span> { row<span class="op">:</span> r, col<span class="op">:</span> col }</span>
+<span id="cb4-9"><a href="#cb4-9"></a>      guard (valid board q')</span>
+<span id="cb4-10"><a href="#cb4-10"></a>      <span class="fu">pure</span>(<span class="dt">Board</span> { size<span class="op">:</span> n, queens<span class="op">:</span> q' <span class="op">:</span> qs })</span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="ot">    go ::</span> <span class="dt">Board</span> <span class="ot">-&gt;</span> <span class="dt">List</span> <span class="dt">Board</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    go board<span class="op">@</span>(<span class="dt">Board</span> { size<span class="op">:</span> n, queens<span class="op">:</span> qs })</span>
+<span id="cb4-14"><a href="#cb4-14"></a>      <span class="op">|</span> <span class="fu">length</span> qs <span class="op">==</span> n <span class="ot">=</span> (singleton board)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">concatMap</span> go (next board)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="kw">in</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>   <span class="kw">if</span> size <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">then</span> go (<span class="dt">Board</span> { size<span class="op">:</span> size, queens<span class="op">:</span> <span class="dt">Nil</span> })</span>
+<span id="cb4-18"><a href="#cb4-18"></a>   <span class="kw">else</span> <span class="dt">Nil</span></span></code></pre></div>
+<p>In the above function, first we check if the size is a natural number greater than 0, which is a required condition since we cannot have a board of size 0 or a board of negative size for that matter.</p>
+<p>The next part is actually really simple to understand. In <code class="verbatim">go</code>, we check if the number of queens is equal to the current size. This is an important condition for N-Queens, since a solved board of <code class="verbatim">n x n</code> should always have <code class="verbatim">n</code> number of queens. If it is, then we return the <code class="verbatim">Board</code> as a single element list. Otherwise, we run <code class="verbatim">go</code> recursively on all the possible next actions and concatenate the solutions into one large result list.</p>
+<p><code class="verbatim">next</code> is pretty self-explanatory. It generates all the legal moves in the next row to be then checked by <code class="verbatim">go</code>. PureScript does not support Haskell style list comprehension syntax sugar so we just have to deal with the <code class="verbatim">List</code> monad. As we know, in N-Queens, the current row is the length of queens already placed since we can only have one queen per row, thus <code class="verbatim">let r = length qs</code>. Then we use a bit of monad magic to express the following: “For every column of the new row in the board, if that position of row and column is valid for a queen to be placed, then create a new board with that queen added to its existing queen positions <code class="verbatim">qs</code>. Finally return the <code class="verbatim">List Board</code> of all board possibilities.”</p>
+<p>This is an example of backtracking in the way that the results are slowly built up using <code class="verbatim">concatMap</code>. Boards with no possible next moves will simply return <code class="verbatim">Nil</code> as a result of calling <code class="verbatim">next</code> on them to indicate an empty list.</p>
+<h1 data-number="5" id="publishing"><span class="header-section-number">5</span> Publishing</h1>
+<p>I would like to really commend PureScript. <a href="https://pursuit.purescript.org/">Pursuit</a> is a great tool and saved me a lot of time in making this. It reads directly from the<a href="https://github.com/purescript/registry"> PureScript registry</a> which anyone can publish and contribute to. There are a lot of great packages. It is pretty easy to publish a package, just run <code class="verbatim">spago publish</code> and follow the instructions. However, I would like to detail an oddity I faced.</p>
+<h2 data-number="5.1" id="spago-publish-subdir-is-not-allowed-or-implemented"><span class="header-section-number">5.1</span> Spago publish <code class="verbatim">subdir</code> is not allowed or implemented</h2>
+<p>Spago is a very well-made and smart build system with great documentation. Before I go any further, here’s <a href="https://github.com/purescript/spago?tab=readme-ov-file#the-configuration-file">all the possible <code class="verbatim">spago.yaml</code> project settings</a>. I was under the impression that I could place the project source code in <code class="verbatim">lib/</code> (the code being in <code class="verbatim">lib/src/</code>) and the live web demo source in <code class="verbatim">demo/</code> with their own respective <code class="verbatim">spago.yaml</code> files along with a <code class="verbatim">spago.yaml</code> in the project root to define the workspace. It built perfectly and everything was sunshine and roses until it came time to publish it to the registry. The registry only accepts source code from the <code class="verbatim">src/</code> directory from the project root. But wait! There’s an option for that:</p>
+<div class="sourceCode" id="cb5" data-startFrom><pre class="sourceCode numberSource yaml numberLines"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">publish</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="at">  </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.0.0</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="at">  </span><span class="fu">license</span><span class="kw">:</span><span class="at"> BSD-3-Clause</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="at">    </span><span class="fu">githubOwner</span><span class="kw">:</span><span class="at"> owners-username</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="at">    </span><span class="fu">githubRepo</span><span class="kw">:</span><span class="at"> repo-name</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="at">    </span><span class="fu">subdir</span><span class="kw">:</span><span class="at"> lib</span><span class="co"> # &lt;--</span></span></code></pre></div>
+<p>We can use <code class="verbatim">subdir</code> right? Wrong. It just gives a cryptic error. For now <code class="verbatim">spago publish</code> only supports publishing if the source code is present in <code class="verbatim">src/</code>, so I moved it there from <code class="verbatim">lib</code>. I moved the <code class="verbatim">lib/spago.yaml</code> to the project root and kept the <code class="verbatim">spago.yaml</code> in <code class="verbatim">demo/</code> for a total of two <code class="verbatim">spago.yaml</code>’s compared to the three I had before. A bit less modular, but fine. All these configurations are possible through Spago’s superpower which is finding subdirectory project files and managing the entire thing as one entity.</p>
+<h2 data-number="5.2" id="fun-with-perl"><span class="header-section-number">5.2</span> Fun with Perl</h2>
+<p>I came across a small issue while publishing a few iterations. I found out that I sometimes forgot to update the version of the package in <code class="verbatim">spago.yaml</code> even after I had already pushed the <code class="verbatim">git tag</code>. I just needed something that would auto-update the version in <code class="verbatim">spago.yaml</code>. I’ve been doing a bit of Perl here and there for fun so I put it to the test.</p>
+<div class="sourceCode" id="cb6" data-startFrom><pre class="sourceCode numberSource makefile numberLines"><code class="sourceCode makefile"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">.PHONY:</span><span class="dt"> demo serve addcommit test</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="dt">CONF</span> <span class="ch">:=</span><span class="st"> spago.yaml</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="dt">DEMO</span> <span class="ch">:=</span><span class="st"> demo</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="dt">PKG</span>  <span class="ch">:=</span><span class="st"> nqueens</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co"># Publishing pipeline</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="dt">BUMP</span> <span class="ch">?=</span><span class="st"> patch</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="dt">SEMVER</span> <span class="ch">:=</span><span class="st"> </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> perl -ne 'print </span><span class="ch">$$</span><span class="st">1 if (/version: (\d+\.\d+\.\d+)/)' </span><span class="ch">$(</span><span class="dt">CONF</span><span class="ch">))</span><span class="st"> </span></span>
+<span id="cb6-11"><a href="#cb6-11"></a></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="kw">define</span> <span class="dt">bump-semver</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="st">    </span><span class="ch">$(</span><span class="kw">eval</span><span class="st"> \</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="st">        NEW_SEMVER := </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> echo </span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st"> | perl -F'\.' -lane \</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="st">            'if (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;major&quot;) { </span><span class="ch">$$</span><span class="st">F[0]++; </span><span class="ch">$$</span><span class="st">F[1]=0; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="st">            elsif (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;minor&quot;) { </span><span class="ch">$$</span><span class="st">F[1]++; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="st">            else { </span><span class="ch">$$</span><span class="st">F[2]++; } \</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="st">            print &quot;</span><span class="ch">$$</span><span class="st">F[0].</span><span class="ch">$$</span><span class="st">F[1].</span><span class="ch">$$</span><span class="st">F[2]&quot;'</span><span class="ch">)</span><span class="st"> \</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="st">    </span><span class="ch">)</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="kw">endef</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="dv">publish:</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="er">    </span><span class="ch">$(</span><span class="kw">call</span><span class="st"> bump-semver</span><span class="kw">,</span><span class="ch">$(</span><span class="dt">BUMP</span><span class="ch">))</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a>    perl -pi -e <span class="st">'s/</span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st">/</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">/'</span> <span class="ch">$(</span><span class="dt">CONF</span><span class="ch">)</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>    git add -A</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    git commit -e</span>
+<span id="cb6-27"><a href="#cb6-27"></a>    git tag <span class="st">'v</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">'</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a>    git push origin main --tags</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    spago publish -p <span class="ch">$(</span><span class="dt">PKG</span><span class="ch">)</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a></span>
+<span id="cb6-31"><a href="#cb6-31"></a></span></code></pre></div>
+<p>I learnt a lot in this exercise. Let me detail my findings in a list:</p>
+<ul>
+<li>In makefiles, the dollar <code class="verbatim">$</code> by itself is usually used for make’s own variables. To escape the dollar (and therefore use it for Perl variables) you need to repeat it. So <code class="verbatim">${ shell perl -e 'print $hi;' }</code> would become <code class="verbatim">${ shell perl -e 'print $$hi;' }</code></li>
+<li>There are no real functions in makefiles, just find and replace macro-like things. They are called using <code class="verbatim">$(call fn,arg1,arg2,...,argn)</code>.</li>
+<li>Indentation really matters, <code class="verbatim">ifeq</code> and friends will not work if you indent them to the target. I used it in an early version before moving it to Perl.</li>
+<li>You need to use $(eval) to change the value of make variables. You cannot assign again.</li>
+<li><code class="verbatim">perl -ne</code> means execute on every line, <code class="verbatim">perl -F'&lt;separator&gt;' -ane</code> is the awk equivalent which stores the values in <code class="verbatim">@F</code>. I enjoy Perl more than awk or sed and it even has a <code class="verbatim">tr</code> equivalent.</li>
+<li>The <code class="verbatim">perl -i</code> flag means to edit in-place.</li>
+</ul>
+<p><code class="verbatim">bump-semver</code> is a make “function” that assigns the increment of the semver according to whether it is a “patch”, “minor” or “major” to <code class="verbatim">NEW_SEMVER</code>, which is then used in the publish target.</p>
+<h1 data-number="6" id="frontend"><span class="header-section-number">6</span> Frontend</h1>
+<p>As mentioned previously, you may view the live demo at <a href="https://jrrom.github.io/purescript-nqueens/">https://jrrom.github.io/purescript-nqueens/</a></p>
+<p>I used <a href="https://github.com/purescript-halogen/purescript-halogen">Halogen</a> for the frontend. It’s pretty good. I’m not going to explain the process in detail because I stuck pretty closely to the boilerplate starter config on Halogen’s GitHub repository. I will just leave the following code for those who are interested. It is pretty self-explanatory. If you want to review what I’ve done in detail then please check out my GitHub repository and maybe leave a star.</p>
+<div class="sourceCode" id="cb7" data-startFrom><pre class="sourceCode numberSource purescript numberLines"><code class="sourceCode purescript"><span id="cb7-1"><a href="#cb7-1"></a><span class="op">...</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  renderBoard board <span class="ot">=</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="kw">let</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>      n <span class="ot">=</span> boardSize board</span>
+<span id="cb7-5"><a href="#cb7-5"></a>      qs <span class="ot">=</span> boardQueens board</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a>      renderCell r c <span class="ot">=</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>        HH.td </span>
+<span id="cb7-9"><a href="#cb7-9"></a>        [ HP.style <span class="st">&quot;width: 30px; height: 30px; text-align: center; border: 1px solid black; font-size: 20px;&quot;</span> ]</span>
+<span id="cb7-10"><a href="#cb7-10"></a>        [ HH.text (<span class="kw">if</span> isQueen r c qs <span class="kw">then</span> <span class="st">&quot;♛&quot;</span> <span class="kw">else</span> <span class="st">&quot;&quot;</span>) ]</span>
+<span id="cb7-11"><a href="#cb7-11"></a></span>
+<span id="cb7-12"><a href="#cb7-12"></a>      renderRow r <span class="ot">=</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>        HH.tr_ (<span class="fu">map</span> (renderCell r) (Array.range <span class="dv">0</span> (n <span class="op">-</span> <span class="dv">1</span>)))</span>
+<span id="cb7-14"><a href="#cb7-14"></a>    <span class="kw">in</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>     HH.table </span>
+<span id="cb7-16"><a href="#cb7-16"></a>     [ HP.style <span class="st">&quot;border-collapse: collapse; background-color: #f0f0f0; border: 2px solid black;&quot;</span> ] </span>
+<span id="cb7-17"><a href="#cb7-17"></a>     [ HH.tbody_ (<span class="fu">map</span> renderRow (Array.range <span class="dv">0</span> (n <span class="op">-</span> <span class="dv">1</span>))) ]</span>
+<span id="cb7-18"><a href="#cb7-18"></a><span class="op">...</span></span></code></pre></div>
+<h1 data-number="7" id="fixing-eglot"><span class="header-section-number">7</span> Fixing Eglot</h1>
+<p>I use Emacs with a focus on keeping things vanilla. By default, <code class="verbatim">purescript-mode</code> treats the <code class="verbatim">.</code> as a part of the symbol. Eglot then uses that information and messes up the autocomplete for qualified modules. So for Halogen, if I typed: <code class="verbatim">H.</code> it would just not autocomplete. I shed blood, sweat, and tears over this issue. Luckily for you all, here’s the fix:</p>
+<div class="sourceCode" id="cb8" data-startFrom><pre class="sourceCode numberSource commonlisp numberLines"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1"></a>(add-hook <span class="dt">'purescript-mode-hook</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  (<span class="kw">lambda</span> ()</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    (modify-syntax-entry ?. <span class="st">&quot;.&quot;</span> purescript-mode-syntax-table)))</span></code></pre></div>
+<p>This treats <code class="verbatim">.</code> like punctuation and thus fixes the LSP’s autocomplete. I think tree-sitter would help a lot in these situations, I normally use it but <a href="https://github.com/Maskhjarna/tree-sitter-purescript">tree-sitter-purescript</a> looks abandoned so I just stuck with regular old <code class="verbatim">purescript-mode</code>.</p>
+<h1 data-number="8" id="conclusion"><span class="header-section-number">8</span> Conclusion</h1>
+<p>I don’t have much to say. I had a blast making this project and I recommend the PureScript language. I learnt a lot! 😁</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer class="footer">
+            <div class="footer__inner">
+                <div class="footer__icons">
+                    <!-- RSS -->
+                    <a href="../rss.xml" title="My RSS feed">
+                        <svg width="3em" height="3em">
+                            <use href="../images/logos.svg#rss"></use>
+                        </svg>
+                    </a>
+                    <!-- GitHub -->
+                    <a href="https://github.com/jrrom" title="My GitHub">
+                        <svg width="3em" height="3em">
+                            <use href="../images/logos.svg#github"></use>
+                        </svg>
+                    </a>
+               
+                    <!-- LinkedIn -->
+                    <a href="https://www.linkedin.com/in/jerome-baeyens-381332337" title="My LinkedIn">
+                        <svg width="3em" height="3em">
+                            <use href="../images/logos.svg#linkedin"></use>
+                        </svg>
+                    </a>
+               
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@jrrom." title="My YouTube">
+                        <svg width="3em" height="3em">
+                            <use href="../images/logos.svg#youtube"></use>
+                        </svg>
+                    </a>
+               
+                    <!-- itch.io -->
+                    <a href="https://jrrom.itch.io" title="My itch.io">
+                        <svg width="3em" height="3em">
+                            <use href="../images/logos.svg#itchio"></use>
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="footer__copyright">
+                    <p> 2025 - Present © jrrom </br>
+                        Site proudly made with
+                        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

@@ -180,12 +180,13 @@
 // ==========================================
 
 .post-list {
-    @include create-border();
     list-style: none;
-    padding: $space-thin;
-
+    @include set-flex($direction: column, $wrap: nowrap, $gap: $space-normal);
+    
     .post {
+        @include create-border();
         @include with-date;
+        padding: $space-thin;
         
         &__inner {
             @include set-flex($gap: $space-mini, $align: center);
@@ -213,6 +214,10 @@
 // Generic Tag
 @include create-tag(".Web", "bg_green", "green");
 
+@include create-tag(".Nix", "bg_cyan", "cyan");
 @include create-tag(".Haskell", "bg_blue", "blue");
 @include create-tag(".CSS, .SCSS", "bg_purple", "purple");
 @include create-tag(".HTML", "bg_yellow", "yellow");
+
+@include create-tag(".PureScript", "bg_slate", "slate");
+@include create-tag(".Perl", "bg_indigo", "indigo");

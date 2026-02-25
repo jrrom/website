@@ -1,7 +1,7 @@
 ---
 title: "Creating my first blog with Hakyll and Org!"
 description: Documenting the process of creating a simple Org-based blog with Hakyll.
-tags: Web, Haskell, HTML, SCSS, CSS
+tags: Web, Haskell, HTML, SCSS, CSS, Nix
 toc: true
 ---
 #+TITLE:Creating my first blog with Hakyll and Org!
@@ -79,7 +79,7 @@ import Text.Pandoc.Highlighting
 writeFile "syntax.css" (styleToCss breezeDark)
 #+end_src
 
-Then I imported it into my ~default.scss~. I will expand on my SCSS configuration later in this post. But for now I have left it untouched.
+Then I imported it into my ~default.scss~. I will expand on my SCSS configuration later in this post. But for now I have left it untouched. Note: the supported languages for syntax highlighting are given in [[https://github.com/jgm/skylighting][skylighting]] under `skylighting-core/xml`.
 
 *** Adding line numbers to the syntax highlighting
 In Org, you have to add -n as a header argument to the code block in order to enable line numbers in the generated HTML. Refer to the following:

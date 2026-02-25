@@ -6,7 +6,7 @@ toc: true
 
 #+TITLE:Lists
 
-* Essential Android Apps
+* Android Apps
 For the entries where I have given "any," that means I don't consider it a necessity or there are many options.
 
 - [[https://www.ankidroid.org/][AnkiDroid]]
@@ -33,7 +33,9 @@ For the entries where I have given "any," that means I don't consider it a neces
 - [[https://www.whatsapp.com/][WhatsApp]]
 - [[https://www.wikipedia.org/][Wikipedia]]
 
-* Essential Desktop Programs
+* Desktop Programs
 I'm currently using [[https://system76.com/cosmic][COSMIC DE]] and [[https://nixos.org/][NixOS]]. If you want my full configuration then [[https://github.com/jrrom/nixos-jrrom][click here]].
 
-
+* Stationery
+- [[https://kanwrite.com/][Kanwrite]] Desire Solid Maroon
+- [[https://www.pelikan.com][Pelikan]] Royal Blue

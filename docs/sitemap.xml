@@ -14,6 +14,13 @@
   </url>
 
   <url>
+    <loc>https://jrrom.com/posts/2026-02-25-nqueens.html</loc>
+    <lastmod>25 February, 2026</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://jrrom.com/posts/2026-01-21-hakyll.html</loc>
     <lastmod>21 January, 2026</lastmod>
     <changefreq>weekly</changefreq>

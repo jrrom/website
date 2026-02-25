@@ -1,0 +1,205 @@
+---
+title: "Solving N-Queens with PureScript!"
+description: Solving N-Queens using recursive backtracking and publishing it as a Spago package.
+tags: Web, PureScript, Nix, Perl
+toc: true
+---
+
+#+TITLE: Solving N-Queens with PureScript!
+
+* Introduction
+Two weeks ago, my professor gave everyone an assignment to cover a specific part of the Algorithms syllabus. I decided to choose the N-Queens problem because it is:
+- Fun to visualise
+- Easily understandable...
+
+... and also because its recursive properties would allow me to test my functional programming skills. The second matter was the choice of programming language. I could have gone for Haskell but I wanted to make a live web demo, then I found [[https://github.com/purescript/purescript][PureScript]]. (Well I knew about it for some time but I finally got a cool chance to use it!)
+
+** About N-Queens
+From [[https://en.wikipedia.org/wiki/Eight_queens_puzzle][Wikipedia]]:
+#+begin_quote
+The eight queens puzzle is the problem of placing eight chess queens on an 8×8 chessboard so that no two queens threaten each other; thus, a solution requires that no two queens share the same row, column, or diagonal.
+#+end_quote
+
+The N-Queens problem is the same principle applied to an =n x n= chessboard with an =n= number of queens.
+
+* Links
+- _GitHub repo_: [[https://github.com/jrrom/purescript-nqueens]]
+- _Official link on PureScript Pursuit_: [[https://pursuit.purescript.org/packages/purescript-nqueens]]
+- _Official N-Queens demo_: [[https://jrrom.github.io/purescript-nqueens/]]
+
+* Setup
+On NixOS, there is the amazing [[https://github.com/thomashoneyman/purescript-overlay][thomashoneyman/purescript-overlay]] which provides the main utilities of =purs=, =spago= and =purescript-language-server=. The setup was a breeze and I highly recommend it. Then I made a directory and ran =spago init= to get the default Spago project skeleton. For the uninitiated, =purs= is the compiler and =spago= is the build system similar to =cargo= in Rust.
+
+* Code Review
+The first step in solving any logical question is to define the parameters and bounds that it operates within. A board can be defined as follows:
+
+#+begin_src purescript -n
+-- | `type Position { row :: Int, col :: Int }`
+type Position = { row :: Int, col :: Int }
+
+-- | `newtype Board { size :: Int, queens :: List Position }`
+newtype Board
+  = Board
+    { size :: Int
+    , queens :: List Position
+    }
+#+end_src
+
+We only need to represent the position of the queens and not the entire board because it is mostly empty space. A board is of dimensions =n x n= where =n= is given as =size= here.  =newtype= in PureScript means that the =Board= is a unique type and not a type alias like =Position= is; the =Board= has to be explicitly constructed.
+
+Next we have to lay out the scope of the problem. We know that two queens can only attack each other if they are on the same row, column or diagonal. 
+
+#+begin_src purescript -n
+-- | Check if the `Position` can be attacked.
+canAttack :: Position -> Position -> Boolean
+canAttack { row: r1, col: c1 } { row: r2, col: c2} =
+  r1 == r2
+  || c1 == c2
+  || abs (r1 - r2) == abs (c1 - c2)
+#+end_src
+
+Fun fact: =abs (r1 - r2) == abs (c1 - c2)= is derived from the slope equation where =m= is set to 1 or -1.
+
+#+begin_src purescript -n
+-- | Check if the `Position` is valid by comparing against `qs :: List Position`.
+valid :: Board -> Position -> Boolean
+valid (Board { size: _, queens: qs }) p =
+  not $ any (canAttack p) qs
+#+end_src
+
+This function helps us check whether a new position given can attack or be attacked by any existing queens. This will come in handy later when we will have to prune any possible solutions which are not valid. I really like =any=; it behaves as a =foldr= with =||= on a map of function =a -> Bool= acting on array =[a]=, or in human terms: if any queen can attack the new queen, then simplify to =true=. That case means a =Board= is not valid, so we use =not=.
+
+#+begin_src purescript -n
+nQueensNaive :: Int -> List Board
+nQueensNaive size =
+  let
+    next :: Board -> List Board
+    next board@(Board { size: n, queens: qs }) = do
+      let r = length qs
+      col <- range 0 (n - 1)
+      let q' = { row: r, col: col }
+      guard (valid board q')
+      pure(Board { size: n, queens: q' : qs })
+      
+    go :: Board -> List Board
+    go board@(Board { size: n, queens: qs })
+      | length qs == n = (singleton board)
+      | otherwise = concatMap go (next board)
+  in
+   if size > 0 then go (Board { size: size, queens: Nil })
+   else Nil
+#+end_src
+
+In the above function, first we check if the size is a natural number greater than 0, which is a required condition since we cannot have a board of size 0 or a board of negative size for that matter.
+
+The next part is actually really simple to understand. In =go=, we check if the number of queens is equal to the current size. This is an important condition for N-Queens, since a solved board of =n x n= should always have =n= number of queens. If it is, then we return the =Board= as a single element list. Otherwise, we run =go= recursively on all the possible next actions and concatenate the solutions into one large result list.
+
+=next= is pretty self-explanatory. It generates all the legal moves in the next row to be then checked by =go=. PureScript does not support Haskell style list comprehension syntax sugar so we just have to deal with the =List= monad. As we know, in N-Queens, the current row is the length of queens already placed since we can only have one queen per row, thus =let r = length qs=. Then we use a bit of monad magic to express the following: "For every column of the new row in the board, if that position of row and column is valid for a queen to be placed, then create a new board with that queen added to its existing queen positions =qs=. Finally return the =List Board= of all board possibilities."
+
+This is an example of backtracking in the way that the results are slowly built up using =concatMap=. Boards with no possible next moves will simply return =Nil= as a result of calling =next= on them to indicate an empty list.
+
+* Publishing
+I would like to really commend PureScript. [[https://pursuit.purescript.org/][Pursuit]] is a great tool and saved me a lot of time in making this. It reads directly from the[[https://github.com/purescript/registry][ PureScript registry]] which anyone can publish and contribute to. There are a lot of great packages. It is pretty easy to publish a package, just run =spago publish= and follow the instructions. However, I would like to detail an oddity I faced.
+
+** Spago publish =subdir= is not allowed or implemented 
+Spago is a very well-made and smart build system with great documentation. Before I go any further, here's [[https://github.com/purescript/spago?tab=readme-ov-file#the-configuration-file][all the possible =spago.yaml= project settings]]. I was under the impression that I could place the project source code in =lib/= (the code being in =lib/src/=) and the live web demo source in =demo/=  with their own respective =spago.yaml= files along with a =spago.yaml=  in the project root to define the workspace. It built perfectly and everything was sunshine and roses until it came time to publish it to the registry. The registry only accepts source code from the =src/= directory from the project root. But wait! There's an option for that:
+
+#+begin_src yaml -n
+  publish:
+    version: 1.0.0
+    license: BSD-3-Clause
+    location:
+      githubOwner: owners-username
+      githubRepo: repo-name
+      subdir: lib # <--
+#+end_src
+
+We can use =subdir= right? Wrong. It just gives a cryptic error. For now =spago publish= only supports publishing if the source code is present in =src/=, so I moved it there from =lib=. I moved the =lib/spago.yaml= to the project root and kept the =spago.yaml= in =demo/= for a total of two =spago.yaml='s compared to the three I had before. A bit less modular, but fine. All these configurations are possible through Spago's superpower which is finding subdirectory project files and managing the entire thing as one entity.
+
+** Fun with Perl
+I came across a small issue while publishing a few iterations. I found out that I sometimes forgot to update the version of the package in =spago.yaml= even after I had already pushed the =git tag=. I just needed something that would auto-update the version in =spago.yaml=. I've been doing a bit of Perl here and there for fun so I put it to the test.
+
+#+begin_src makefile -n
+.PHONY: demo serve addcommit test
+
+CONF := spago.yaml
+DEMO := demo
+PKG  := nqueens
+
+# Publishing pipeline
+
+BUMP ?= patch
+SEMVER := $(shell perl -ne 'print $$1 if (/version: (\d+\.\d+\.\d+)/)' $(CONF)) 
+
+define bump-semver
+    $(eval \
+        NEW_SEMVER := $(shell echo $(SEMVER) | perl -F'\.' -lane \
+            'if ("$(1)" eq "major") { $$F[0]++; $$F[1]=0; $$F[2]=0; } \
+            elsif ("$(1)" eq "minor") { $$F[1]++; $$F[2]=0; } \
+            else { $$F[2]++; } \
+            print "$$F[0].$$F[1].$$F[2]"') \
+    )
+endef
+
+publish:
+	$(call bump-semver,$(BUMP))
+	perl -pi -e 's/$(SEMVER)/$(NEW_SEMVER)/' $(CONF)
+	git add -A
+	git commit -e
+	git tag 'v$(NEW_SEMVER)'
+	git push origin main --tags
+	spago publish -p $(PKG)
+
+
+#+end_src
+
+I learnt a lot in this exercise. Let me detail my findings in a list:
+- In makefiles, the dollar =$= by itself is usually used for make's own variables. To escape the dollar (and therefore use it for Perl variables) you need to repeat it. So =${ shell perl -e 'print $hi;' }= would become =${ shell perl -e 'print $$hi;' }=
+- There are no real functions in makefiles, just find and replace macro-like things. They are called using =$(call fn,arg1,arg2,...,argn)=.
+- Indentation really matters, =ifeq= and friends will not work if you indent them to the target. I used it in an early version before moving it to Perl.
+- You need to use $(eval) to change the value of make variables. You cannot assign again.
+- =perl -ne= means execute on every line, =perl -F'<separator>' -ane= is the awk equivalent which stores the values in =@F=. I enjoy Perl more than awk or sed and it even has a =tr= equivalent.
+- The =perl -i= flag means to edit in-place.
+
+=bump-semver= is a make "function" that assigns the increment of the semver according to whether it is a "patch", "minor" or "major" to =NEW_SEMVER=, which is then used in the publish target.
+
+
+* Frontend
+As mentioned previously, you may view the live demo at [[https://jrrom.github.io/purescript-nqueens/]]
+
+I used [[https://github.com/purescript-halogen/purescript-halogen][Halogen]] for the frontend. It's pretty good. I'm not going to explain the process in detail because I stuck pretty closely to the boilerplate starter config on Halogen's GitHub repository. I will just leave the following code for those who are interested. It is pretty self-explanatory. If you want to review what I've done in detail then please check out my GitHub repository and maybe leave a star.
+
+#+begin_src purescript -n
+...
+  renderBoard board =
+    let
+      n = boardSize board
+      qs = boardQueens board
+      
+      renderCell r c =
+        HH.td 
+        [ HP.style "width: 30px; height: 30px; text-align: center; border: 1px solid black; font-size: 20px;" ]
+        [ HH.text (if isQueen r c qs then "♛" else "") ]
+
+      renderRow r =
+        HH.tr_ (map (renderCell r) (Array.range 0 (n - 1)))
+    in
+     HH.table 
+     [ HP.style "border-collapse: collapse; background-color: #f0f0f0; border: 2px solid black;" ] 
+     [ HH.tbody_ (map renderRow (Array.range 0 (n - 1))) ]
+...
+#+end_src
+
+* Fixing Eglot
+I use Emacs with a focus on keeping things vanilla. By default, =purescript-mode= treats the =.= as a part of the symbol. Eglot then uses that information and messes up the autocomplete for qualified modules. So for Halogen, if I typed: =H.=  it would just not autocomplete. I shed blood, sweat, and tears over this issue. Luckily for you all, here's the fix:
+
+#+begin_src commonlisp -n
+(add-hook 'purescript-mode-hook
+  (lambda ()
+    (modify-syntax-entry ?. "." purescript-mode-syntax-table)))
+#+end_src
+
+This treats =.= like punctuation and thus fixes the LSP's autocomplete. I think tree-sitter would help a lot in these situations, I normally use it but [[https://github.com/Maskhjarna/tree-sitter-purescript][tree-sitter-purescript]] looks abandoned so I just stuck with regular old =purescript-mode=.
+
+* Conclusion
+I don't have much to say. I had a blast making this project and I recommend the PureScript language. I learnt a lot! 😁

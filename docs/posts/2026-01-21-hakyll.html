@@ -80,6 +80,7 @@
 <li class="HTML"><a href="../tags/HTML.html">HTML</a></li>
 <li class="SCSS"><a href="../tags/SCSS.html">SCSS</a></li>
 <li class="CSS"><a href="../tags/CSS.html">CSS</a></li>
+<li class="Nix"><a href="../tags/Nix.html">Nix</a></li>
             </ul>
             
         </section>
@@ -178,7 +179,7 @@
 <p>I found a few great blogs for advanced syntax highlighting using <a href="https://tony-zorman.com/posts/pygmentising-hakyll.html">pygmentize</a> or even <a href="https://vaibhavsagar.com/blog/2023/01/29/ghc-syntax-hakyll/">GHC itself</a>. However, I decided to just go for the default as it suited my needs. I ran the following code in the repl to generate the syntax highlighting file:</p>
 <div class="sourceCode" id="cb4" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">import</span> <span class="dt">Text.Pandoc.Highlighting</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a><span class="fu">writeFile</span> <span class="st">&quot;syntax.css&quot;</span> (styleToCss breezeDark)</span></code></pre></div>
-<p>Then I imported it into my <code>default.scss</code>. I will expand on my SCSS configuration later in this post. But for now I have left it untouched.</p>
+<p>Then I imported it into my <code>default.scss</code>. I will expand on my SCSS configuration later in this post. But for now I have left it untouched. Note: the supported languages for syntax highlighting are given in <a href="https://github.com/jgm/skylighting">skylighting</a> under `skylighting-core/xml`.</p>
 <h3 data-number="3.2.1" id="adding-line-numbers-to-the-syntax-highlighting"><span class="header-section-number">3.2.1</span> Adding line numbers to the syntax highlighting</h3>
 <p>In Org, you have to add -n as a header argument to the code block in order to enable line numbers in the generated HTML. Refer to the following:</p>
 <div class="sourceCode" id="cb5" data-startFrom><pre class="sourceCode numberSource org numberLines"><code class="sourceCode orgmode"><span id="cb5-1"><a href="#cb5-1"></a>#+begin_src yaml -n</span>

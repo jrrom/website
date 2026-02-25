@@ -43,9 +43,11 @@ main = hakyllWith config $ do
     route idRoute
     compile copyFileCompiler
 
-  match "scss/main.scss" $ do
-    route   $ constRoute "css/main.css"
-    compile compressScssCompiler
+  scssDependencies <- makePatternDependency "scss/*"
+  rulesExtraDependencies [scssDependencies] $ do
+    match "scss/main.scss" $ do
+      route   $ constRoute "css/main.css"
+      compile compressScssCompiler
 
   match "lists.org" $ do
     route   $ setExtension "html"

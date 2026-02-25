@@ -13,12 +13,16 @@
         devShells."${system}".default = let
           pkgs = import nixpkgs { inherit system; };
         in pkgs.mkShell {
-          # Create an environment with Racket
           packages = with pkgs; [
             (ghc.withPackages(ps: with ps; [
               cabal-install
-              haskell-language-server
+              hakyll
+              blaze-html
+              pandoc
+              doctemplates
+              text
             ]))
+            haskell-language-server
             zlib
             ormolu
             dart-sass

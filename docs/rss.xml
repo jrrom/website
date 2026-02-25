@@ -7,8 +7,16 @@
         <description><![CDATA[Posts about general topics and development.]]></description>
         <atom:link href="https://jrrom.com/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 21 Jan 2026 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 25 Feb 2026 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Solving N-Queens with PureScript!</title>
+    <link>https://jrrom.com/posts/2026-02-25-nqueens.html</link>
+    <description><![CDATA[Solving N-Queens using recursive backtracking and publishing it as a Spago package.]]></description>
+    <pubDate>Wed, 25 Feb 2026 00:00:00 UT</pubDate>
+    <guid>https://jrrom.com/posts/2026-02-25-nqueens.html</guid>
+    <dc:creator>jrrom</dc:creator>
+</item>
+<item>
     <title>Creating my first blog with Hakyll and Org!</title>
     <link>https://jrrom.com/posts/2026-01-21-hakyll.html</link>
     <description><![CDATA[Documenting the process of creating a simple Org-based blog with Hakyll.]]></description>
