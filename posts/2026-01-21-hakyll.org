@@ -1,7 +1,7 @@
 ---
 title: "Creating my first blog with Hakyll and Org!"
 description: Documenting the process of creating a simple Org-based blog with Hakyll.
-tags: Web, Haskell, HTML, SCSS, CSS, Nix
+tags: Web, Haskell, HTML, SCSS, CSS, Nix, Emacs
 toc: true
 ---
 #+TITLE:Creating my first blog with Hakyll and Org!
