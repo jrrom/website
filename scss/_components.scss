@@ -182,6 +182,7 @@
 .post-list {
     list-style: none;
     @include set-flex($direction: column, $wrap: nowrap, $gap: $space-normal);
+    padding-left: 0;
     
     .post {
         @include create-border();
