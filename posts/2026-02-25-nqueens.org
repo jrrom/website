@@ -120,25 +120,20 @@ We can use =subdir= right? Wrong. It just gives a cryptic error. For now =spago 
 I came across a small issue while publishing a few iterations. I found out that I sometimes forgot to update the version of the package in =spago.yaml= even after I had already pushed the =git tag=. I just needed something that would auto-update the version in =spago.yaml=. I've been doing a bit of Perl here and there for fun so I put it to the test.
 
 #+begin_src makefile -n
-.PHONY: demo serve addcommit test
-
-CONF := spago.yaml
-DEMO := demo
-PKG  := nqueens
-
 # Publishing pipeline
 
 BUMP ?= patch
-SEMVER := $(shell perl -ne 'print $$1 if (/version: (\d+\.\d+\.\d+)/)' $(CONF)) 
+SEMVER := $(strip $(shell perl -ne 'print $$1 if (/version: (\d+\.\d+\.\d+)/)' $(CONF)))
 
 define bump-semver
-    $(eval \
-        NEW_SEMVER := $(shell echo $(SEMVER) | perl -F'\.' -lane \
-            'if ("$(1)" eq "major") { $$F[0]++; $$F[1]=0; $$F[2]=0; } \
-            elsif ("$(1)" eq "minor") { $$F[1]++; $$F[2]=0; } \
-            else { $$F[2]++; } \
-            print "$$F[0].$$F[1].$$F[2]"') \
-    )
+	$(eval \
+		NEW_SEMVER := $(shell printf "%s" $(SEMVER) | perl -F'\.' -lane \
+			'if ("$(1)" eq "major") { $$F[0]++; $$F[1]=0; $$F[2]=0; } \
+			elsif ("$(1)" eq "minor") { $$F[1]++; $$F[2]=0; } \
+			else { $$F[2]++; } \
+			print "$$F[0].$$F[1].$$F[2]"') \
+	)
+	$(eval NEW_SEMVER := $(strip $(NEW_SEMVER)))
 endef
 
 publish:
@@ -149,8 +144,6 @@ publish:
 	git tag 'v$(NEW_SEMVER)'
 	git push origin main --tags
 	spago publish -p $(PKG)
-
-
 #+end_src
 
 I learnt a lot in this exercise. Let me detail my findings in a list:
@@ -160,6 +153,7 @@ I learnt a lot in this exercise. Let me detail my findings in a list:
 - You need to use $(eval) to change the value of make variables. You cannot assign again.
 - =perl -ne= means execute on every line, =perl -F'<separator>' -ane= is the awk equivalent which stores the values in =@F=. I enjoy Perl more than awk or sed and it even has a =tr= equivalent.
 - The =perl -i= flag means to edit in-place.
+- You need to use =$(strip ...)= to remove trailing spaces, especially with shell where you can't predict where the spaces come from.
 
 =bump-semver= is a make "function" that assigns the increment of the semver according to whether it is a "patch", "minor" or "major" to =NEW_SEMVER=, which is then used in the publish target.
 

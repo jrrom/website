@@ -183,37 +183,30 @@
 <p>We can use <code class="verbatim">subdir</code> right? Wrong. It just gives a cryptic error. For now <code class="verbatim">spago publish</code> only supports publishing if the source code is present in <code class="verbatim">src/</code>, so I moved it there from <code class="verbatim">lib</code>. I moved the <code class="verbatim">lib/spago.yaml</code> to the project root and kept the <code class="verbatim">spago.yaml</code> in <code class="verbatim">demo/</code> for a total of two <code class="verbatim">spago.yaml</code>’s compared to the three I had before. A bit less modular, but fine. All these configurations are possible through Spago’s superpower which is finding subdirectory project files and managing the entire thing as one entity.</p>
 <h2 data-number="5.2" id="fun-with-perl"><span class="header-section-number">5.2</span> Fun with Perl</h2>
 <p>I came across a small issue while publishing a few iterations. I found out that I sometimes forgot to update the version of the package in <code class="verbatim">spago.yaml</code> even after I had already pushed the <code class="verbatim">git tag</code>. I just needed something that would auto-update the version in <code class="verbatim">spago.yaml</code>. I’ve been doing a bit of Perl here and there for fun so I put it to the test.</p>
-<div class="sourceCode" id="cb6" data-startFrom><pre class="sourceCode numberSource makefile numberLines"><code class="sourceCode makefile"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">.PHONY:</span><span class="dt"> demo serve addcommit test</span></span>
+<div class="sourceCode" id="cb6" data-startFrom><pre class="sourceCode numberSource makefile numberLines"><code class="sourceCode makefile"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Publishing pipeline</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="dt">CONF</span> <span class="ch">:=</span><span class="st"> spago.yaml</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="dt">DEMO</span> <span class="ch">:=</span><span class="st"> demo</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="dt">PKG</span>  <span class="ch">:=</span><span class="st"> nqueens</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="co"># Publishing pipeline</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a><span class="dt">BUMP</span> <span class="ch">?=</span><span class="st"> patch</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a><span class="dt">SEMVER</span> <span class="ch">:=</span><span class="st"> </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> perl -ne 'print </span><span class="ch">$$</span><span class="st">1 if (/version: (\d+\.\d+\.\d+)/)' </span><span class="ch">$(</span><span class="dt">CONF</span><span class="ch">))</span><span class="st"> </span></span>
-<span id="cb6-11"><a href="#cb6-11"></a></span>
-<span id="cb6-12"><a href="#cb6-12"></a><span class="kw">define</span> <span class="dt">bump-semver</span></span>
-<span id="cb6-13"><a href="#cb6-13"></a><span class="st">    </span><span class="ch">$(</span><span class="kw">eval</span><span class="st"> \</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a><span class="st">        NEW_SEMVER := </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> echo </span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st"> | perl -F'\.' -lane \</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a><span class="st">            'if (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;major&quot;) { </span><span class="ch">$$</span><span class="st">F[0]++; </span><span class="ch">$$</span><span class="st">F[1]=0; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a><span class="st">            elsif (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;minor&quot;) { </span><span class="ch">$$</span><span class="st">F[1]++; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
-<span id="cb6-17"><a href="#cb6-17"></a><span class="st">            else { </span><span class="ch">$$</span><span class="st">F[2]++; } \</span></span>
-<span id="cb6-18"><a href="#cb6-18"></a><span class="st">            print &quot;</span><span class="ch">$$</span><span class="st">F[0].</span><span class="ch">$$</span><span class="st">F[1].</span><span class="ch">$$</span><span class="st">F[2]&quot;'</span><span class="ch">)</span><span class="st"> \</span></span>
-<span id="cb6-19"><a href="#cb6-19"></a><span class="st">    </span><span class="ch">)</span></span>
-<span id="cb6-20"><a href="#cb6-20"></a><span class="kw">endef</span></span>
-<span id="cb6-21"><a href="#cb6-21"></a></span>
-<span id="cb6-22"><a href="#cb6-22"></a><span class="dv">publish:</span></span>
-<span id="cb6-23"><a href="#cb6-23"></a><span class="er">    </span><span class="ch">$(</span><span class="kw">call</span><span class="st"> bump-semver</span><span class="kw">,</span><span class="ch">$(</span><span class="dt">BUMP</span><span class="ch">))</span></span>
-<span id="cb6-24"><a href="#cb6-24"></a>    perl -pi -e <span class="st">'s/</span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st">/</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">/'</span> <span class="ch">$(</span><span class="dt">CONF</span><span class="ch">)</span></span>
-<span id="cb6-25"><a href="#cb6-25"></a>    git add -A</span>
-<span id="cb6-26"><a href="#cb6-26"></a>    git commit -e</span>
-<span id="cb6-27"><a href="#cb6-27"></a>    git tag <span class="st">'v</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">'</span></span>
-<span id="cb6-28"><a href="#cb6-28"></a>    git push origin main --tags</span>
-<span id="cb6-29"><a href="#cb6-29"></a>    spago publish -p <span class="ch">$(</span><span class="dt">PKG</span><span class="ch">)</span></span>
-<span id="cb6-30"><a href="#cb6-30"></a></span>
-<span id="cb6-31"><a href="#cb6-31"></a></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="dt">BUMP</span> <span class="ch">?=</span><span class="st"> patch</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="dt">SEMVER</span> <span class="ch">:=</span><span class="st"> </span><span class="ch">$(</span><span class="kw">strip</span><span class="st"> </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> perl -ne 'print </span><span class="ch">$$</span><span class="st">1 if (/version: (\d+\.\d+\.\d+)/)' </span><span class="ch">$(</span><span class="dt">CONF</span><span class="ch">)))</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="kw">define</span> <span class="dt">bump-semver</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="st">    </span><span class="ch">$(</span><span class="kw">eval</span><span class="st"> \</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="st">        NEW_SEMVER := </span><span class="ch">$(</span><span class="kw">shell</span><span class="st"> printf &quot;%s&quot; </span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st"> | perl -F'\.' -lane \</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="st">            'if (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;major&quot;) { </span><span class="ch">$$</span><span class="st">F[0]++; </span><span class="ch">$$</span><span class="st">F[1]=0; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="st">            elsif (&quot;</span><span class="ch">$(</span><span class="dt">1</span><span class="ch">)</span><span class="st">&quot; eq &quot;minor&quot;) { </span><span class="ch">$$</span><span class="st">F[1]++; </span><span class="ch">$$</span><span class="st">F[2]=0; } \</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="st">            else { </span><span class="ch">$$</span><span class="st">F[2]++; } \</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="st">            print &quot;</span><span class="ch">$$</span><span class="st">F[0].</span><span class="ch">$$</span><span class="st">F[1].</span><span class="ch">$$</span><span class="st">F[2]&quot;'</span><span class="ch">)</span><span class="st"> \</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="st">    </span><span class="ch">)</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="st">    </span><span class="ch">$(</span><span class="kw">eval</span><span class="st"> NEW_SEMVER := </span><span class="ch">$(</span><span class="kw">strip</span><span class="st"> </span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)))</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="kw">endef</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="dv">publish:</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="er">    </span><span class="ch">$(</span><span class="kw">call</span><span class="st"> bump-semver</span><span class="kw">,</span><span class="ch">$(</span><span class="dt">BUMP</span><span class="ch">))</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>    perl -pi -e <span class="st">'s/</span><span class="ch">$(</span><span class="dt">SEMVER</span><span class="ch">)</span><span class="st">/</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">/'</span> <span class="ch">$(</span><span class="dt">CONF</span><span class="ch">)</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a>    git add -A</span>
+<span id="cb6-21"><a href="#cb6-21"></a>    git commit -e</span>
+<span id="cb6-22"><a href="#cb6-22"></a>    git tag <span class="st">'v</span><span class="ch">$(</span><span class="dt">NEW_SEMVER</span><span class="ch">)</span><span class="st">'</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>    git push origin main --tags</span>
+<span id="cb6-24"><a href="#cb6-24"></a>    spago publish -p <span class="ch">$(</span><span class="dt">PKG</span><span class="ch">)</span></span></code></pre></div>
 <p>I learnt a lot in this exercise. Let me detail my findings in a list:</p>
 <ul>
 <li>In makefiles, the dollar <code class="verbatim">$</code> by itself is usually used for make’s own variables. To escape the dollar (and therefore use it for Perl variables) you need to repeat it. So <code class="verbatim">${ shell perl -e 'print $hi;' }</code> would become <code class="verbatim">${ shell perl -e 'print $$hi;' }</code></li>
@@ -222,6 +215,7 @@
 <li>You need to use $(eval) to change the value of make variables. You cannot assign again.</li>
 <li><code class="verbatim">perl -ne</code> means execute on every line, <code class="verbatim">perl -F'&lt;separator&gt;' -ane</code> is the awk equivalent which stores the values in <code class="verbatim">@F</code>. I enjoy Perl more than awk or sed and it even has a <code class="verbatim">tr</code> equivalent.</li>
 <li>The <code class="verbatim">perl -i</code> flag means to edit in-place.</li>
+<li>You need to use <code class="verbatim">$(strip ...)</code> to remove trailing spaces, especially with shell where you can’t predict where the spaces come from.</li>
 </ul>
 <p><code class="verbatim">bump-semver</code> is a make “function” that assigns the increment of the semver according to whether it is a “patch”, “minor” or “major” to <code class="verbatim">NEW_SEMVER</code>, which is then used in the publish target.</p>
 <h1 data-number="6" id="frontend"><span class="header-section-number">6</span> Frontend</h1>
