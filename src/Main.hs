@@ -1,6 +1,8 @@
---------------------------------------------------------------------------------
-
 {-# LANGUAGE OverloadedStrings #-}
+
+module Main where
+
+----------------------------------------------------------------
 import           Data.List   (intercalate, intersperse)
 import           Data.Monoid ((<>))
 import           Data.Ord    (comparing)
@@ -8,55 +10,25 @@ import           Hakyll
 import           Text.Pandoc.Class (runPure)
 import           Text.Pandoc.Options (WriterOptions(..))
 import           Text.Pandoc.Templates (compileTemplate, runWithDefaultPartials)
+import           System.FilePath (takeFileName)
 
 import           Text.Blaze.Html                 (toHtml, toValue, (!))
 import           Text.Blaze.Html.Renderer.String (renderHtml)
-import qualified Text.Blaze.Html5                as H
-import qualified Text.Blaze.Html5.Attributes     as A
+import qualified Text.Blaze.Html5            as H
+import qualified Text.Blaze.Html5.Attributes as A
 
-root :: String
-root = "https://jrrom.com"
-
---------------------------------------------------------------------------------
+import Config (root, config, myFeedConfiguration)
+import Compilers (compressScssCompiler, scssRules)
+----------------------------------------------------------------
 
 main :: IO ()
 main = hakyllWith config $ do
   tags <- buildTags "posts/*" (fromCapture "tags/*.html")
 
-  match "images/*" $ do
-    route   idRoute
+  -- root --------------------------------------------------------------
+  match ("CNAME" .||. "robots.txt") $ do
+    route (customRoute (takeFileName . toFilePath))
     compile copyFileCompiler
-
-  match "CNAME" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "fonts/*" $ do
-    route   idRoute
-    compile copyFileCompiler
-
-  match "robots.txt" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "js/*" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  scssDependencies <- makePatternDependency "scss/*"
-  rulesExtraDependencies [scssDependencies] $ do
-    match "scss/main.scss" $ do
-      route   $ constRoute "css/main.css"
-      compile compressScssCompiler
-
-  match "lists.org" $ do
-    route   $ setExtension "html"
-    let ctx =
-          constField "root" root <>
-          defaultContext
-    compile $ pandocCompilerWith defaultHakyllReaderOptions withToc
-      >>= loadAndApplyTemplate "templates/default.html" ctx
-      >>= relativizeUrls
 
   match "404.org" $ do
     route $ setExtension "html"
@@ -66,7 +38,15 @@ main = hakyllWith config $ do
     compile $ pandocCompiler
       >>= loadAndApplyTemplate "templates/default.html" ctx
       >>= relativizeUrls
-        
+
+  -- resources ------------------------------------------------------------
+  match ("fonts/*" .||. "images/*" .||. "js/*") $ do
+    route idRoute
+    compile copyFileCompiler
+
+  scssRules "scss" "main.scss" "css/main.css"
+  
+  -- posts --------------------------------------------------------------
   match "posts/*" $ do
     route $ setExtension "html"
     compile $ do
@@ -99,7 +79,7 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/default.html" ctx
         >>= relativizeUrls
 
-  create ["archive.html"] $ do
+  create ["blog.html"] $ do
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll "posts/*"
@@ -132,6 +112,7 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/default.html" indexCtx
         >>= relativizeUrls
 
+  -- xml ----------------------------------------------------------------
   create ["rss.xml"] $ do
     route idRoute
     compile $ do
@@ -152,17 +133,10 @@ main = hakyllWith config $ do
            
       makeItem ""
         >>= loadAndApplyTemplate "templates/sitemap.xml" sitemapCtx
-
-
+  
+  -- templates ----------------------------------------------------------
   match "templates/*" $ compile templateBodyCompiler
   
---------------------------------------------------------------------------------
--- Write to docs/ instead of _site
-
-config :: Configuration
-config = defaultConfiguration
-  { destinationDirectory = "docs" }
-
 --------------------------------------------------------------------------------
 
 withToc :: WriterOptions
@@ -212,27 +186,5 @@ postCtxWithTags tags =
 
 postNumTagSort :: (String, [Identifier]) -> (String, [Identifier]) -> Ordering
 postNumTagSort a b = comparing (length . snd) b a
-
-compressScssCompiler :: Compiler (Item String)
-compressScssCompiler = do
-    fmap (fmap compressCss) $
-        getResourceString
-        >>= withItemBody (unixFilter "sass" [ "--stdin"
-                                            , "--style", "compressed"
-                                            , "--load-path", "scss"
-                                        ])
-        
---------------------------------------------------------------------------------
--- RSS Feeds
-
-myFeedConfiguration :: FeedConfiguration
-myFeedConfiguration =
-    FeedConfiguration
-        { feedTitle       = "jrrom's Blog"
-        , feedDescription = "Posts about general topics and development."
-        , feedAuthorName  = "jrrom"
-        , feedAuthorEmail = "web@jrrom.com"
-        , feedRoot        = root
-        }
         
 --------------------------------------------------------------------------------

@@ -138,11 +138,11 @@
 <p>The <a href="https://github.com/jrrom/website">Git repo</a> for this site is available for curious minds. I run a simple <a href="https://nixos-and-flakes.thiscute.world/development/dev-environments">Nix development flake</a> with GHC<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> and <a href="https://www.haskell.org/cabal/">Cabal</a>, along with the Haskell Language Server for LSP actions. I highly recommend following Hakyll’s <a href="https://jaspervdj.be/hakyll/tutorials.html">beginner tutorials</a> to get started with the actual SSG part. The setup can definitely be improved by integrating the actual Cabal Hakyll install into the Nix environment.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
 <h2 data-number="2.1" id="adding-metadata-to-org"><span class="header-section-number">2.1</span> Adding metadata to Org</h2>
 <p>Special thanks to <a href="https://jakebox.github.io/posts/2025-09-12-this_blog.html">Jacob Boxerman’s blog post on switching to Hakyll</a> for showing how to add metadata to Org documents. You just have to add the same header that you do for Markdown. This is unexpected and does not use Org mode’s default metadata tags, so I am noting it down here. It must be the first thing in the file; otherwise, the post metadata will not generate properly.</p>
-<div class="sourceCode" id="cb1" data-startFrom><pre class="sourceCode numberSource yaml numberLines"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">---</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Example of metadata, even for Org files&quot;</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> jrrom</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">...</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">---</span></span></code></pre></div>
+<div class="sourceCode" id="cb1" data-startFrom><pre class="sourceCode numberSource yaml numberLines"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a><span class="pp">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-label="2"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Example of metadata, even for Org files&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-label="3"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> jrrom</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-label="4"></a><span class="co">...</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-label="5"></a><span class="co">---</span></span></code></pre></div>
 <h2 data-number="2.2" id="use-cabal-run-site-instead-of-installing-the-executable-every-time"><span class="header-section-number">2.2</span> Use <code>cabal run site</code> instead of installing the executable every time</h2>
 <p>Hakyll is the library that allows us to build the executable that is the actual SSG, <code class="verbatim">cabal install</code> is used to first install the built executable <code class="verbatim">site</code> to a directory. This is not updated with <code class="verbatim">cabal build</code> as I thought, so I was running the old executable again and again until I realised. Now I use <code class="verbatim">cabal run site</code> instead of using install.</p>
 <h1 data-number="3" id="development"><span class="header-section-number">3</span> Development</h1>
@@ -150,87 +150,87 @@
 <h2 data-number="3.1" id="adding-collected-tags-to-each-post"><span class="header-section-number">3.1</span> Adding collected tags to each post</h2>
 <p>I followed the <a href="https://javran.github.io/posts/2014-03-01-add-tags-to-your-hakyll-blog.html">helpful tutorial linked here</a> and ended up with a basic tag setup. However, I was unsatisfied by the general lack of HTML modification capabilities. I had to use the library functions to create the markup structure that I wanted</p>
 <p>For the index page, I made an <code>indexTagsCtx</code> that collects all the tags from all the posts and arranges them by the number of posts that contain the specified tag.</p>
-<div class="sourceCode" id="cb2" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">indexRenderTags ::</span> <span class="dt">Tags</span> <span class="ot">-&gt;</span> <span class="dt">Compiler</span> <span class="dt">String</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>indexRenderTags tags <span class="ot">=</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>  renderTags</span>
-<span id="cb2-4"><a href="#cb2-4"></a>  (\tag url count _ _ <span class="ot">-&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>      <span class="st">&quot;&lt;li class=\&quot;&quot;</span> <span class="op">++</span> tag <span class="op">++</span> <span class="st">&quot;\&quot;&gt; &lt;a href=\&quot;&quot;</span> <span class="op">++</span> url <span class="op">++</span> <span class="st">&quot;\&quot;&gt;&quot;</span> <span class="op">++</span> tag <span class="op">++</span> <span class="st">&quot;&lt;/a&gt;&quot;</span> <span class="op">++</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>      <span class="st">&quot;&lt;i&gt; &quot;</span> <span class="op">++</span> (<span class="fu">show</span> count) <span class="op">++</span> <span class="st">&quot; &lt;/i&gt;&quot;</span> <span class="op">++</span> <span class="st">&quot;&lt;/li&gt;&quot;</span>)</span>
-<span id="cb2-7"><a href="#cb2-7"></a>  <span class="fu">unlines</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>  (sortTagsBy postNumTagSort tags)</span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="ot">indexTagsCtx ::</span> <span class="dt">Tags</span> <span class="ot">-&gt;</span> <span class="dt">Context</span> <span class="dt">String</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>indexTagsCtx tags <span class="ot">=</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a>  field <span class="st">&quot;tags&quot;</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>                   indexRenderTags tags</span></code></pre></div>
+<div class="sourceCode" id="cb2" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a><span class="ot">indexRenderTags ::</span> <span class="dt">Tags</span> <span class="ot">-&gt;</span> <span class="dt">Compiler</span> <span class="dt">String</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-label="2"></a>indexRenderTags tags <span class="ot">=</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-label="3"></a>  renderTags</span>
+<span id="cb2-4"><a href="#cb2-4" aria-label="4"></a>  (\tag url count _ _ <span class="ot">-&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-label="5"></a>      <span class="st">&quot;&lt;li class=\&quot;&quot;</span> <span class="op">++</span> tag <span class="op">++</span> <span class="st">&quot;\&quot;&gt; &lt;a href=\&quot;&quot;</span> <span class="op">++</span> url <span class="op">++</span> <span class="st">&quot;\&quot;&gt;&quot;</span> <span class="op">++</span> tag <span class="op">++</span> <span class="st">&quot;&lt;/a&gt;&quot;</span> <span class="op">++</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-label="6"></a>      <span class="st">&quot;&lt;i&gt; &quot;</span> <span class="op">++</span> (<span class="fu">show</span> count) <span class="op">++</span> <span class="st">&quot; &lt;/i&gt;&quot;</span> <span class="op">++</span> <span class="st">&quot;&lt;/li&gt;&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-label="7"></a>  <span class="fu">unlines</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-label="8"></a>  (sortTagsBy postNumTagSort tags)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-label="9"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-label="10"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-label="11"></a><span class="ot">indexTagsCtx ::</span> <span class="dt">Tags</span> <span class="ot">-&gt;</span> <span class="dt">Context</span> <span class="dt">String</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-label="12"></a>indexTagsCtx tags <span class="ot">=</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-label="13"></a>  field <span class="st">&quot;tags&quot;</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-label="14"></a>                   indexRenderTags tags</span></code></pre></div>
 <p>For rendering the tags of a normal post, this is where I found it got a bit strange. Instead of writing HTML with strings, I had to use <a href="https://hackage.haskell.org/package/blaze-html">blaze-html</a> in order to feed the proper input to the library function, but it works nevertheless. It felt weird that the function interfaces are different for this seemingly similar thing.</p>
-<div class="sourceCode" id="cb3" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="ot">jrromRenderLink ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">Maybe</span> <span class="dt">FilePath</span>) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">H.Html</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>jrromRenderLink _ <span class="dt">Nothing</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>jrromRenderLink tag (<span class="dt">Just</span> filePath) <span class="ot">=</span> <span class="dt">Just</span> <span class="op">$</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a>  H.li <span class="op">!</span> A.class_ (toValue tag) <span class="op">$</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a>      H.a <span class="op">!</span> A.href (toValue <span class="op">$</span> toUrl filePath) <span class="op">$</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>          toHtml tag</span>
-<span id="cb3-7"><a href="#cb3-7"></a></span>
-<span id="cb3-8"><a href="#cb3-8"></a>postCtxWithTags tags <span class="ot">=</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a>  dateField <span class="st">&quot;date&quot;</span> <span class="st">&quot;%B %e, %Y&quot;</span> <span class="op">&lt;&gt;</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>  tagsFieldWith getTags jrromRenderLink (<span class="fu">mconcat</span> <span class="op">.</span> intersperse <span class="st">&quot;\n&quot;</span>) <span class="st">&quot;tags&quot;</span> tags <span class="op">&lt;&gt;</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a>  defaultContext</span></code></pre></div>
+<div class="sourceCode" id="cb3" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-label="1"></a><span class="ot">jrromRenderLink ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">Maybe</span> <span class="dt">FilePath</span>) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">H.Html</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-label="2"></a>jrromRenderLink _ <span class="dt">Nothing</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-label="3"></a>jrromRenderLink tag (<span class="dt">Just</span> filePath) <span class="ot">=</span> <span class="dt">Just</span> <span class="op">$</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-label="4"></a>  H.li <span class="op">!</span> A.class_ (toValue tag) <span class="op">$</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-label="5"></a>      H.a <span class="op">!</span> A.href (toValue <span class="op">$</span> toUrl filePath) <span class="op">$</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-label="6"></a>          toHtml tag</span>
+<span id="cb3-7"><a href="#cb3-7" aria-label="7"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-label="8"></a>postCtxWithTags tags <span class="ot">=</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-label="9"></a>  dateField <span class="st">&quot;date&quot;</span> <span class="st">&quot;%B %e, %Y&quot;</span> <span class="op">&lt;&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-label="10"></a>  tagsFieldWith getTags jrromRenderLink (<span class="fu">mconcat</span> <span class="op">.</span> intersperse <span class="st">&quot;\n&quot;</span>) <span class="st">&quot;tags&quot;</span> tags <span class="op">&lt;&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-label="11"></a>  defaultContext</span></code></pre></div>
 <h2 data-number="3.2" id="adding-syntax-highlighting"><span class="header-section-number">3.2</span> Adding syntax highlighting</h2>
 <p>I found a few great blogs for advanced syntax highlighting using <a href="https://tony-zorman.com/posts/pygmentising-hakyll.html">pygmentize</a> or even <a href="https://vaibhavsagar.com/blog/2023/01/29/ghc-syntax-hakyll/">GHC itself</a>. However, I decided to just go for the default as it suited my needs. I ran the following code in the repl to generate the syntax highlighting file:</p>
-<div class="sourceCode" id="cb4" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">import</span> <span class="dt">Text.Pandoc.Highlighting</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">writeFile</span> <span class="st">&quot;syntax.css&quot;</span> (styleToCss breezeDark)</span></code></pre></div>
+<div class="sourceCode" id="cb4" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-label="1"></a><span class="kw">import</span> <span class="dt">Text.Pandoc.Highlighting</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-label="2"></a><span class="fu">writeFile</span> <span class="st">&quot;syntax.css&quot;</span> (styleToCss breezeDark)</span></code></pre></div>
 <p>Then I imported it into my <code>default.scss</code>. I will expand on my SCSS configuration later in this post. But for now I have left it untouched. Note: the supported languages for syntax highlighting are given in <a href="https://github.com/jgm/skylighting">skylighting</a> under `skylighting-core/xml`.</p>
 <h3 data-number="3.2.1" id="adding-line-numbers-to-the-syntax-highlighting"><span class="header-section-number">3.2.1</span> Adding line numbers to the syntax highlighting</h3>
 <p>In Org, you have to add -n as a header argument to the code block in order to enable line numbers in the generated HTML. Refer to the following:</p>
-<div class="sourceCode" id="cb5" data-startFrom><pre class="sourceCode numberSource org numberLines"><code class="sourceCode orgmode"><span id="cb5-1"><a href="#cb5-1"></a>#+begin_src yaml -n</span>
-<span id="cb5-2"><a href="#cb5-2"></a>...</span>
-<span id="cb5-3"><a href="#cb5-3"></a>...</span>
-<span id="cb5-4"><a href="#cb5-4"></a>#+end_src</span></code></pre></div>
+<div class="sourceCode" id="cb5" data-startFrom><pre class="sourceCode numberSource org numberLines"><code class="sourceCode orgmode"><span id="cb5-1"><a href="#cb5-1" aria-label="1"></a>#+begin_src yaml -n</span>
+<span id="cb5-2"><a href="#cb5-2" aria-label="2"></a>...</span>
+<span id="cb5-3"><a href="#cb5-3" aria-label="3"></a>...</span>
+<span id="cb5-4"><a href="#cb5-4" aria-label="4"></a>#+end_src</span></code></pre></div>
 <h2 data-number="3.3" id="adding-a-table-of-contents-toc"><span class="header-section-number">3.3</span> Adding a Table of Contents (TOC)</h2>
 <p>First, I would like to link to <a href="https://github.com/jaspervdj/hakyll">Hakyll’s official website source code</a> where the proper solution to this problem is given. I couldn’t find mentions of this anywhere else. Next, I would like to link to <a href="https://argumatronic.com/posts/2018-01-16-pandoc-toc.html">Argumatronic’s blog on Pandoc TOC generation</a>, though it is outdated now, I used the methods described to successfully only generate the TOC for posts with <code>toc</code> in the metadata. As seen below, if <code>toc</code> exists then I pass <code>withToc</code>, else I pass <code>defaultHakyllWriterOptions</code>.</p>
-<div class="sourceCode" id="cb6" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
-<span id="cb6-2"><a href="#cb6-2"></a>main <span class="ot">=</span> hakyll <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="op">...</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a>  match <span class="st">&quot;posts/*&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>    route <span class="op">$</span> setExtension <span class="st">&quot;html&quot;</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>    compile <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>      ident <span class="ot">&lt;-</span> getUnderlying</span>
-<span id="cb6-8"><a href="#cb6-8"></a>      toc   <span class="ot">&lt;-</span> getMetadataField ident <span class="st">&quot;toc&quot;</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a></span>
-<span id="cb6-10"><a href="#cb6-10"></a>      <span class="kw">let</span> writerSettings <span class="ot">=</span> <span class="kw">case</span> toc <span class="kw">of</span></span>
-<span id="cb6-11"><a href="#cb6-11"></a>            <span class="dt">Just</span> _  <span class="ot">-&gt;</span> withToc</span>
-<span id="cb6-12"><a href="#cb6-12"></a>            <span class="dt">Nothing</span> <span class="ot">-&gt;</span> defaultHakyllWriterOptions</span>
-<span id="cb6-13"><a href="#cb6-13"></a></span>
-<span id="cb6-14"><a href="#cb6-14"></a>      pandocCompilerWith defaultHakyllReaderOptions writerSettings</span>
-<span id="cb6-15"><a href="#cb6-15"></a>        <span class="op">&gt;&gt;=</span> loadAndApplyTemplate <span class="st">&quot;templates/post.html&quot;</span>    (postCtxWithTags tags)</span>
-<span id="cb6-16"><a href="#cb6-16"></a>        <span class="op">&gt;&gt;=</span> loadAndApplyTemplate <span class="st">&quot;templates/default.html&quot;</span> (postCtxWithTags tags)</span>
-<span id="cb6-17"><a href="#cb6-17"></a>        <span class="op">&gt;&gt;=</span> relativizeUrls</span>
-<span id="cb6-18"><a href="#cb6-18"></a><span class="op">...</span></span></code></pre></div>
+<div class="sourceCode" id="cb6" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-label="1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-label="2"></a>main <span class="ot">=</span> hakyll <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-label="3"></a><span class="op">...</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-label="4"></a>  match <span class="st">&quot;posts/*&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-label="5"></a>    route <span class="op">$</span> setExtension <span class="st">&quot;html&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-label="6"></a>    compile <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-label="7"></a>      ident <span class="ot">&lt;-</span> getUnderlying</span>
+<span id="cb6-8"><a href="#cb6-8" aria-label="8"></a>      toc   <span class="ot">&lt;-</span> getMetadataField ident <span class="st">&quot;toc&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-label="9"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-label="10"></a>      <span class="kw">let</span> writerSettings <span class="ot">=</span> <span class="kw">case</span> toc <span class="kw">of</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-label="11"></a>            <span class="dt">Just</span> _  <span class="ot">-&gt;</span> withToc</span>
+<span id="cb6-12"><a href="#cb6-12" aria-label="12"></a>            <span class="dt">Nothing</span> <span class="ot">-&gt;</span> defaultHakyllWriterOptions</span>
+<span id="cb6-13"><a href="#cb6-13" aria-label="13"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-label="14"></a>      pandocCompilerWith defaultHakyllReaderOptions writerSettings</span>
+<span id="cb6-15"><a href="#cb6-15" aria-label="15"></a>        <span class="op">&gt;&gt;=</span> loadAndApplyTemplate <span class="st">&quot;templates/post.html&quot;</span>    (postCtxWithTags tags)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-label="16"></a>        <span class="op">&gt;&gt;=</span> loadAndApplyTemplate <span class="st">&quot;templates/default.html&quot;</span> (postCtxWithTags tags)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-label="17"></a>        <span class="op">&gt;&gt;=</span> relativizeUrls</span>
+<span id="cb6-18"><a href="#cb6-18" aria-label="18"></a><span class="op">...</span></span></code></pre></div>
 <p>And now, <code>withToc</code>, which doesn’t allow developers to pass a <code>Maybe String</code> to the <code>writerTemplate</code> anymore. Spent a long time fixing this!</p>
-<div class="sourceCode" id="cb7" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="ot">withToc ::</span> <span class="dt">WriterOptions</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>withToc <span class="ot">=</span> defaultHakyllWriterOptions</span>
-<span id="cb7-3"><a href="#cb7-3"></a>        { writerTableOfContents <span class="ot">=</span> <span class="dt">True</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>        , writerNumberSections <span class="ot">=</span> <span class="dt">True</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a>        , writerTOCDepth <span class="ot">=</span> <span class="dv">3</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>        , writerTemplate <span class="ot">=</span> <span class="dt">Just</span> (</span>
-<span id="cb7-7"><a href="#cb7-7"></a>            <span class="fu">either</span> <span class="fu">error</span> <span class="fu">id</span> <span class="op">$</span> <span class="fu">either</span> (<span class="fu">error</span> <span class="op">.</span> <span class="fu">show</span>) <span class="fu">id</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>          <span class="op">$</span> runPure</span>
-<span id="cb7-9"><a href="#cb7-9"></a>          <span class="op">$</span> runWithDefaultPartials</span>
-<span id="cb7-10"><a href="#cb7-10"></a>          <span class="op">$</span> compileTemplate <span class="st">&quot;&quot;</span> <span class="st">&quot;$toc$\n$body$&quot;</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a>          )</span>
-<span id="cb7-12"><a href="#cb7-12"></a>        }</span></code></pre></div>
+<div class="sourceCode" id="cb7" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-label="1"></a><span class="ot">withToc ::</span> <span class="dt">WriterOptions</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-label="2"></a>withToc <span class="ot">=</span> defaultHakyllWriterOptions</span>
+<span id="cb7-3"><a href="#cb7-3" aria-label="3"></a>        { writerTableOfContents <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-label="4"></a>        , writerNumberSections <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-label="5"></a>        , writerTOCDepth <span class="ot">=</span> <span class="dv">3</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-label="6"></a>        , writerTemplate <span class="ot">=</span> <span class="dt">Just</span> (</span>
+<span id="cb7-7"><a href="#cb7-7" aria-label="7"></a>            <span class="fu">either</span> <span class="fu">error</span> <span class="fu">id</span> <span class="op">$</span> <span class="fu">either</span> (<span class="fu">error</span> <span class="op">.</span> <span class="fu">show</span>) <span class="fu">id</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-label="8"></a>          <span class="op">$</span> runPure</span>
+<span id="cb7-9"><a href="#cb7-9" aria-label="9"></a>          <span class="op">$</span> runWithDefaultPartials</span>
+<span id="cb7-10"><a href="#cb7-10" aria-label="10"></a>          <span class="op">$</span> compileTemplate <span class="st">&quot;&quot;</span> <span class="st">&quot;$toc$\n$body$&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-label="11"></a>          )</span>
+<span id="cb7-12"><a href="#cb7-12" aria-label="12"></a>        }</span></code></pre></div>
 <h2 data-number="3.4" id="generating-sitemap.xml-and-rss.xml"><span class="header-section-number">3.4</span> Generating sitemap.xml and rss.xml</h2>
 <p>I used <a href="https://robertwpearce.com/hakyll-pt-1-setup-initial-customization.html">this amazing blog series</a> to guide me in making this. I created the <code>sitemap.xml</code> template and populated it with the required data such as the root and the pages of the site. For the feed it was as easy as saving a snapshot of the posts as “content” and writing the following:</p>
-<div class="sourceCode" id="cb8" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1"></a><span class="op">...</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>  create [<span class="st">&quot;rss.xml&quot;</span>] <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>    route idRoute</span>
-<span id="cb8-4"><a href="#cb8-4"></a>    compile <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>      <span class="kw">let</span> feedCtx <span class="ot">=</span> (postCtxWithTags tags)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>      posts <span class="ot">&lt;-</span> <span class="fu">fmap</span> (<span class="fu">take</span> <span class="dv">5</span>) <span class="op">.</span> recentFirst <span class="op">=&lt;&lt;</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>        loadAllSnapshots <span class="st">&quot;posts/*&quot;</span> <span class="st">&quot;content&quot;</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>      renderRss myFeedConfiguration feedCtx posts</span>
-<span id="cb8-9"><a href="#cb8-9"></a><span class="op">...</span></span></code></pre></div>
+<div class="sourceCode" id="cb8" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-label="1"></a><span class="op">...</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-label="2"></a>  create [<span class="st">&quot;rss.xml&quot;</span>] <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-label="3"></a>    route idRoute</span>
+<span id="cb8-4"><a href="#cb8-4" aria-label="4"></a>    compile <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-label="5"></a>      <span class="kw">let</span> feedCtx <span class="ot">=</span> (postCtxWithTags tags)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-label="6"></a>      posts <span class="ot">&lt;-</span> <span class="fu">fmap</span> (<span class="fu">take</span> <span class="dv">5</span>) <span class="op">.</span> recentFirst <span class="op">=&lt;&lt;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-label="7"></a>        loadAllSnapshots <span class="st">&quot;posts/*&quot;</span> <span class="st">&quot;content&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-label="8"></a>      renderRss myFeedConfiguration feedCtx posts</span>
+<span id="cb8-9"><a href="#cb8-9" aria-label="9"></a><span class="op">...</span></span></code></pre></div>
 <h2 data-number="3.5" id="preloading-pages"><span class="header-section-number">3.5</span> Preloading pages</h2>
 <p>A few months ago I saw <a href="https://youtu.be/-Ln-8QM8KhQ?si=lL1ymKn1sdHI5Yhi">this video</a> about McMaster Carr and their blazingly fast™ website and got inspired. I searched online for a bit and found <a href="https://instant.page/">instant.page</a> which preloads links on <code>hover</code> or <code>touchstart</code>, and it does exactly what it says on the can. So I simply added it to this project. It deals with a lot of edge cases that I don’t really want to think about.</p>
 <h3 data-number="3.5.1" id="ublock-origin-blocks-prefetches"><span class="header-section-number">3.5.1</span> uBlock Origin blocks prefetches</h3>
@@ -242,39 +242,39 @@
 <p>Some fun facts I discovered while working on the design of the website.</p>
 <h3 data-number="4.1.1" id="making-head-visible"><span class="header-section-number">4.1.1</span> Making <code>&lt;head&gt;</code> Visible</h3>
 <p>While messing around I discovered that the <code>head</code> element and its children can be made visible using CSS. Who knew?<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> Try and see it for yourself!</p>
-<div class="sourceCode" id="cb9" data-startFrom><pre class="sourceCode numberSource css numberLines"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1"></a>head<span class="op">,</span> head <span class="op">*</span> {</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="kw">display</span><span class="ch">:</span> <span class="dv">block</span><span class="op">;</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>}</span>
-<span id="cb9-4"><a href="#cb9-4"></a></span>
-<span id="cb9-5"><a href="#cb9-5"></a>link<span class="in">::after</span> {</span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="kw">content</span><span class="ch">:</span> <span class="st">&quot;Link: &quot;</span> <span class="fu">attr(</span><span class="dv">href</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>  <span class="kw">background-color</span><span class="ch">:</span> <span class="cn">#F00</span><span class="op">;</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a>}</span>
-<span id="cb9-9"><a href="#cb9-9"></a></span>
-<span id="cb9-10"><a href="#cb9-10"></a>meta<span class="in">::after</span> {</span>
-<span id="cb9-11"><a href="#cb9-11"></a>  <span class="kw">content</span><span class="ch">:</span> <span class="st">&quot;[&quot;</span> <span class="fu">attr(</span><span class="dv">name</span><span class="fu">)</span> <span class="fu">attr(</span><span class="dv">property</span><span class="fu">)</span> <span class="st">&quot;]: &quot;</span> <span class="fu">attr(</span><span class="dv">content</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a>  <span class="kw">background-color</span><span class="ch">:</span> <span class="cn">#0F0</span><span class="op">;</span></span>
-<span id="cb9-13"><a href="#cb9-13"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9" data-startFrom><pre class="sourceCode numberSource css numberLines"><code class="sourceCode css"><span id="cb9-1"><a href="#cb9-1" aria-label="1"></a>head<span class="op">,</span> head <span class="op">*</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-label="2"></a>  <span class="kw">display</span><span class="ch">:</span> <span class="dv">block</span><span class="op">;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-label="3"></a>}</span>
+<span id="cb9-4"><a href="#cb9-4" aria-label="4"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-label="5"></a>link<span class="in">::after</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-label="6"></a>  <span class="kw">content</span><span class="ch">:</span> <span class="st">&quot;Link: &quot;</span> <span class="fu">attr(</span><span class="dv">href</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-label="7"></a>  <span class="kw">background-color</span><span class="ch">:</span> <span class="cn">#F00</span><span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-label="8"></a>}</span>
+<span id="cb9-9"><a href="#cb9-9" aria-label="9"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-label="10"></a>meta<span class="in">::after</span> {</span>
+<span id="cb9-11"><a href="#cb9-11" aria-label="11"></a>  <span class="kw">content</span><span class="ch">:</span> <span class="st">&quot;[&quot;</span> <span class="fu">attr(</span><span class="dv">name</span><span class="fu">)</span> <span class="fu">attr(</span><span class="dv">property</span><span class="fu">)</span> <span class="st">&quot;]: &quot;</span> <span class="fu">attr(</span><span class="dv">content</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-label="12"></a>  <span class="kw">background-color</span><span class="ch">:</span> <span class="cn">#0F0</span><span class="op">;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-label="13"></a>}</span></code></pre></div>
 <h3 data-number="4.1.2" id="scss-has-first-class-functions"><span class="header-section-number">4.1.2</span> SCSS has first class functions</h3>
 <p>This really blew my mind. <a href="https://sass-lang.com/documentation/values/functions/">Functions</a> and <a href="https://sass-lang.com/documentation/values/mixins/">mixins</a> can be passed as regular old values. I wonder what all kinds of shenanigans can be done with this. I will be looking into this in the future for sure.</p>
-<div class="sourceCode" id="cb10" data-startFrom><pre class="sourceCode numberSource scss numberLines"><code class="sourceCode scss"><span id="cb10-1"><a href="#cb10-1"></a><span class="im">@use</span> <span class="st">&quot;sass:meta&quot;</span><span class="op">;</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="im">@function</span> <span class="fu">fibonacci(</span><span class="va">$x</span><span class="fu">)</span> {</span>
-<span id="cb10-4"><a href="#cb10-4"></a>    <span class="im">@if</span> <span class="va">$x</span> <span class="op">&lt;=</span> <span class="dv">1</span> { <span class="im">@return</span> <span class="va">$x</span> }<span class="op">;</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a></span>
-<span id="cb10-6"><a href="#cb10-6"></a>    <span class="va">$fib_fn</span><span class="ch">:</span> meta.<span class="fu">get-function(</span><span class="st">&quot;fibonacci&quot;</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>    <span class="im">@return</span> meta.<span class="fu">call(</span><span class="va">$fib_fn</span><span class="op">,</span> <span class="va">$x</span> <span class="op">-</span> <span class="dv">1</span><span class="fu">)</span> <span class="op">+</span> meta.<span class="fu">call(</span><span class="va">$fib_fn</span><span class="op">,</span> <span class="va">$x</span> <span class="op">-</span> <span class="dv">2</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>}</span>
-<span id="cb10-9"><a href="#cb10-9"></a></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="im">@function</span> <span class="fu">print-var(</span><span class="va">$x</span><span class="fu">)</span> {</span>
-<span id="cb10-11"><a href="#cb10-11"></a>    <span class="im">@debug</span>(<span class="va">$x</span>)<span class="op">;</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>    <span class="im">@return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a>}</span>
-<span id="cb10-14"><a href="#cb10-14"></a></span>
-<span id="cb10-15"><a href="#cb10-15"></a>main {</span>
-<span id="cb10-16"><a href="#cb10-16"></a>    <span class="va">$_1</span><span class="ch">:</span> <span class="fu">fibonacci(</span><span class="dv">10</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb10-17"><a href="#cb10-17"></a>    <span class="va">$_2</span><span class="ch">:</span> <span class="fu">print-var(</span><span class="va">$_1</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb10" data-startFrom><pre class="sourceCode numberSource scss numberLines"><code class="sourceCode scss"><span id="cb10-1"><a href="#cb10-1" aria-label="1"></a><span class="im">@use</span> <span class="st">&quot;sass:meta&quot;</span><span class="op">;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-label="2"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-label="3"></a><span class="im">@function</span> <span class="fu">fibonacci(</span><span class="va">$x</span><span class="fu">)</span> {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-label="4"></a>    <span class="im">@if</span> <span class="va">$x</span> <span class="op">&lt;=</span> <span class="dv">1</span> { <span class="im">@return</span> <span class="va">$x</span> }<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-label="5"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-label="6"></a>    <span class="va">$fib_fn</span><span class="ch">:</span> meta.<span class="fu">get-function(</span><span class="st">&quot;fibonacci&quot;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-label="7"></a>    <span class="im">@return</span> meta.<span class="fu">call(</span><span class="va">$fib_fn</span><span class="op">,</span> <span class="va">$x</span> <span class="op">-</span> <span class="dv">1</span><span class="fu">)</span> <span class="op">+</span> meta.<span class="fu">call(</span><span class="va">$fib_fn</span><span class="op">,</span> <span class="va">$x</span> <span class="op">-</span> <span class="dv">2</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-label="8"></a>}</span>
+<span id="cb10-9"><a href="#cb10-9" aria-label="9"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-label="10"></a><span class="im">@function</span> <span class="fu">print-var(</span><span class="va">$x</span><span class="fu">)</span> {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-label="11"></a>    <span class="im">@debug</span>(<span class="va">$x</span>)<span class="op">;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-label="12"></a>    <span class="im">@return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-label="13"></a>}</span>
+<span id="cb10-14"><a href="#cb10-14" aria-label="14"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-label="15"></a>main {</span>
+<span id="cb10-16"><a href="#cb10-16" aria-label="16"></a>    <span class="va">$_1</span><span class="ch">:</span> <span class="fu">fibonacci(</span><span class="dv">10</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-label="17"></a>    <span class="va">$_2</span><span class="ch">:</span> <span class="fu">print-var(</span><span class="va">$_1</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-label="18"></a>}</span></code></pre></div>
 <p>Yes, this actually works.</p>
 <pre class="-n"><code>[nix-shell:~/Documents/test]$ sass test.scss 
 test.scss:11 Debug: 55
@@ -282,19 +282,19 @@ test.scss:11 Debug: 55
 </code></pre>
 <h2 data-number="4.2" id="dealing-with-light-and-dark-mode"><span class="header-section-number">4.2</span> Dealing with light and dark mode</h2>
 <p>To implement light and dark mode, I used a combination of <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/Use_data_attributes">data attributes</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme?Sid=1">prefers-color-scheme</a>. The site is dark by default and when the user loads the page there is a simple script in the <code>head</code> which checks if the system default is equal to <code>"light"</code>, in which case it sets the <code>document.documentElement.dataset.theme</code> to light. If the theme is already set in local storage then it defaults to the saved value.</p>
-<div class="sourceCode" id="cb12" data-org-language="js" data-startFrom><pre class="sourceCode numberSource javascript numberLines"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1"></a><span class="bu">document</span><span class="op">.</span><span class="at">documentElement</span><span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">theme</span> <span class="op">=</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>    localStorage<span class="op">.</span><span class="fu">getItem</span>(<span class="st">&quot;theme&quot;</span>) <span class="op">??</span></span>
-<span id="cb12-3"><a href="#cb12-3"></a>    (<span class="fu">matchMedia</span>(<span class="st">&quot;(prefers-color-scheme: light)&quot;</span>)<span class="op">.</span><span class="at">matches</span></span>
-<span id="cb12-4"><a href="#cb12-4"></a>         <span class="op">?</span> <span class="st">&quot;light&quot;</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a>         <span class="op">:</span> <span class="st">&quot;dark&quot;</span>)<span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12" data-org-language="js" data-startFrom><pre class="sourceCode numberSource javascript numberLines"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-label="1"></a><span class="bu">document</span><span class="op">.</span><span class="at">documentElement</span><span class="op">.</span><span class="at">dataset</span><span class="op">.</span><span class="at">theme</span> <span class="op">=</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-label="2"></a>    localStorage<span class="op">.</span><span class="fu">getItem</span>(<span class="st">&quot;theme&quot;</span>) <span class="op">??</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-label="3"></a>    (<span class="fu">matchMedia</span>(<span class="st">&quot;(prefers-color-scheme: light)&quot;</span>)<span class="op">.</span><span class="at">matches</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-label="4"></a>         <span class="op">?</span> <span class="st">&quot;light&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-label="5"></a>         <span class="op">:</span> <span class="st">&quot;dark&quot;</span>)<span class="op">;</span></span></code></pre></div>
 <p>The styling is given below. <code>create-theme</code> is a special mixin which generates all the required CSS variables according to the colour scheme map provided.</p>
-<div class="sourceCode" id="cb13" data-startFrom><pre class="sourceCode numberSource scss numberLines"><code class="sourceCode scss"><span id="cb13-1"><a href="#cb13-1"></a><span class="in">:root</span> {</span>
-<span id="cb13-2"><a href="#cb13-2"></a>    <span class="im">@include</span> <span class="fu">create-theme(</span><span class="dv">dark</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb13-3"><a href="#cb13-3"></a>}</span>
-<span id="cb13-4"><a href="#cb13-4"></a></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="ex">[</span><span class="ss">data-theme</span><span class="op">=</span><span class="st">&quot;light&quot;</span><span class="ex">]</span> {</span>
-<span id="cb13-6"><a href="#cb13-6"></a>    <span class="im">@include</span> <span class="fu">create-theme(</span><span class="dv">light</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb13" data-startFrom><pre class="sourceCode numberSource scss numberLines"><code class="sourceCode scss"><span id="cb13-1"><a href="#cb13-1" aria-label="1"></a><span class="in">:root</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-label="2"></a>    <span class="im">@include</span> <span class="fu">create-theme(</span><span class="dv">dark</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-label="3"></a>}</span>
+<span id="cb13-4"><a href="#cb13-4" aria-label="4"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-label="5"></a><span class="ex">[</span><span class="ss">data-theme</span><span class="op">=</span><span class="st">&quot;light&quot;</span><span class="ex">]</span> {</span>
+<span id="cb13-6"><a href="#cb13-6" aria-label="6"></a>    <span class="im">@include</span> <span class="fu">create-theme(</span><span class="dv">light</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-label="7"></a>}</span></code></pre></div>
 <p>The properties are then assigned CSS variables (not Sass ones!) so that they change dynamically with the theme.</p>
 <h2 data-number="4.3" id="dealing-with-css-custom-properties-in-sass"><span class="header-section-number">4.3</span> Dealing with CSS custom properties in Sass</h2>
 <p>In Sass, all CSS custom properties (in the form <code>--value: ...;</code> ) do not evaluate any <a href="https://sass-lang.com/documentation/style-rules/declarations/#custom-properties">SassScript values assigned to them</a>. This is because they get passed directly to the final CSS file. We have to use interpolation in the form of <code>#{$var}</code> to get around this issue.</p>
@@ -306,9 +306,9 @@ test.scss:11 Debug: 55
 <li>No SVG in CSS using the <code>d:</code> property since <a href="https://caniuse.com/mdn-css_properties_d">caniuse says only 82% usage</a>.</li>
 </ul>
 <p>This left me with placing all my SVGs in a single <code>logos.svg</code> file, adding icons to them and adding them when required with <code>&lt;use&gt;</code></p>
-<div class="sourceCode" id="cb14" data-startFrom><pre class="sourceCode numberSource html numberLines"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">&lt;</span><span class="kw">svg</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="dt">&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>    <span class="dt">&lt;</span><span class="kw">use</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;/images/logos.svg#email&quot;</span><span class="dt">&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="dt">&lt;/</span><span class="kw">svg</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14" data-startFrom><pre class="sourceCode numberSource html numberLines"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1" aria-label="1"></a><span class="dt">&lt;</span><span class="kw">svg</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;1em&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-label="2"></a>    <span class="dt">&lt;</span><span class="kw">use</span><span class="ot"> href</span><span class="op">=</span><span class="st">&quot;/images/logos.svg#email&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-label="3"></a><span class="dt">&lt;/</span><span class="kw">svg</span><span class="dt">&gt;</span></span></code></pre></div>
 <p>This is detailed <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use">here</a>. This has the added benefit of caching all the icons at once since it is all in a single portable file. I recommend it.</p>
 <h2 data-number="4.5" id="dealing-with-fonts"><span class="header-section-number">4.5</span> Dealing with fonts</h2>
 <p>This was surprisingly the easiest part. Check out <a href="https://gwfh.mranftl.com/fonts">google-webfonts-helper</a>. I simply picked out my fonts and installed them in <code>woff2</code> format. If you install fonts directly from Google then you get <code>ttf</code> files, though I didn’t investigate the matter further. The added benefit of google-webfonts-helper is that it also gives you the CSS to copy and put in your website. Amazing.</p>
@@ -319,13 +319,13 @@ test.scss:11 Debug: 55
 <p>I followed <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site">the tutorial</a>, but was not able to enable HTTPS. This had to do with the fact that I did not account for <code>www</code> being at the beginning of the domain name. After creating a <code>CNAME</code> redirection, I was able to proceed successfully.</p>
 <h2 data-number="5.3" id="dealing-with-docs"><span class="header-section-number">5.3</span> Dealing with <code>docs/</code></h2>
 <p>GitHub Pages makes it easy to host by either selecting the <code>root</code> directory, the <code>docs</code> directory in root or a different branch. It was surprisingly easy to tell Hakyll to build to <code>docs/</code> instead of <code>_site</code> . Just use <code>hakyllWith</code> and you’re done!</p>
-<div class="sourceCode" id="cb15" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1"></a>main <span class="ot">=</span> hakyllWith config <span class="op">$</span> <span class="kw">do</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="op">...</span></span>
-<span id="cb15-3"><a href="#cb15-3"></a></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="co">-- Write to docs/ instead of _site</span></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="ot">config ::</span> <span class="dt">Configuration</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a>config <span class="ot">=</span> defaultConfiguration</span>
-<span id="cb15-7"><a href="#cb15-7"></a>  { destinationDirectory <span class="ot">=</span> <span class="st">&quot;docs&quot;</span> }</span></code></pre></div>
+<div class="sourceCode" id="cb15" data-startFrom><pre class="sourceCode numberSource haskell numberLines"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-label="1"></a>main <span class="ot">=</span> hakyllWith config <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-label="2"></a>  <span class="op">...</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-label="3"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-label="4"></a><span class="co">-- Write to docs/ instead of _site</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-label="5"></a><span class="ot">config ::</span> <span class="dt">Configuration</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-label="6"></a>config <span class="ot">=</span> defaultConfiguration</span>
+<span id="cb15-7"><a href="#cb15-7" aria-label="7"></a>  { destinationDirectory <span class="ot">=</span> <span class="st">&quot;docs&quot;</span> }</span></code></pre></div>
 <h1 data-number="6" id="conclusion"><span class="header-section-number">6</span> Conclusion</h1>
 <p>I was pretty surprised by Hakyll. It is more of a library that allows you to make your own SSG rather than being an SSG itself. The documentation is opaque and not friendly to beginners, but it is worth trudging through it to find the immense power that lies within.</p>
 <p>Thank you for reading! 😁</p>
@@ -365,7 +365,7 @@ test.scss:11 Debug: 55
                     </a>
                
                     <!-- LinkedIn -->
-                    <a href="https://www.linkedin.com/in/jerome-baeyens-381332337" title="My LinkedIn">
+                    <a href="https://www.linkedin.com/in/jerome-baeyens" title="My LinkedIn">
                         <svg width="3em" height="3em">
                             <use href="../images/logos.svg#linkedin"></use>
                         </svg>

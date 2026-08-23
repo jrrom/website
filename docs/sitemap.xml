@@ -35,13 +35,6 @@
   </url>
 
   <url>
-    <loc>https://jrrom.com/lists.html</loc>
-    <lastmod></lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://jrrom.com/rss.xml</loc>
     <lastmod></lastmod>
     <changefreq>weekly</changefreq>
