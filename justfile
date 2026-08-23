@@ -21,3 +21,25 @@ watch:
 publish message: clean build
     git add -A
     git commit -m {{message}}
+
+# writing
+post_dir := justfile_directory() / "content/posts"
+today    := `date +%Y-%m-%d`
+
+new title:
+    #!/bin/sh
+    filename=$(printf '%s' "{{title}}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+    file="{{post_dir}}/{{today}}-$filename.md"
+
+    printf '%s\n' \
+        '---' \
+        'title: "{{title}}"' \
+        'description: TODO' \
+        'tags: TODO' \
+        'toc: true' \
+        'date: {{today}}' \
+        'lastmod: {{today}}' \
+        '---' \
+        > "$file"
+
+    echo "Created: $file"
