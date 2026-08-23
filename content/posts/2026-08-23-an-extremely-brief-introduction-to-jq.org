@@ -7,6 +7,11 @@ date: 2026-08-23
 lastmod: 2026-08-23
 ---
 
+* YouTube Video
+https://www.youtube.com/watch?v=OxgObpqgUDc
+
+Official YouTube video for this article. Check it out if you'd like.
+
 * Introduction
 If I were to ask you what you thought [[https://jqlang.org/][jq]] stood for, then you might answer or you might assume that it is the short form of JSON query. However,[[https://stackoverflow.com/questions/56111140/what-does-jq-stand-for][ that assumption is false]] according to one of the authors of =jq=! This is just one of the many ways that this programming language is misunderstood. One of these misunderstandings is that =jq= is just for handling JSON. To the contrary, it can even serve as a rudimentary general-purpose programming language, a stream editor, and even a [[https://github.com/jqlang/jq/wiki/Parsing-Expression-Grammars][PEG parser]]. =jq= is so complex that [[https://github.com/wader/jqjq][it can be implemented in itself]]. It is a Turing-complete language like any other.
 

@@ -21,6 +21,7 @@ watch:
 publish message: clean build
     git add -A
     git commit -m "{{message}}"
+    git push -u origin main
 
 # writing
 post_dir := justfile_directory() / "content/posts"
