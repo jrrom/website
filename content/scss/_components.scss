@@ -1,4 +1,6 @@
-@use "variables" as *;
+@use "utility/variables" as *;
+@use "utility/theme" as *;
+@use "utility/mixins.scss" as *;
 
 // ==========================================
 // Header
@@ -208,19 +210,3 @@
     }
 }
 
-// ==========================================
-// Individual Tags
-// ==========================================
-
-// Generic Tag
-@include create-tag(".Web", "bg_green", "green");
-
-@include create-tag(".Nix", "bg_cyan", "cyan");
-@include create-tag(".Haskell", "bg_blue", "blue");
-@include create-tag(".CSS, .SCSS", "bg_purple", "purple");
-@include create-tag(".HTML", "bg_yellow", "yellow");
-
-@include create-tag(".PureScript", "bg_slate", "slate");
-@include create-tag(".Perl", "bg_indigo", "indigo");
-
-@include create-tag(".Emacs", "bg_indigo", "indigo");

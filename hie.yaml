@@ -1,4 +1,10 @@
 cradle:
   cabal:
-    - path: "./src/Main.hs"
-      component: "website:exe:site"
+    - path: "src/Main.hs"
+      component: "website:exe:website"
+
+    - path: "src/Config.hs"
+      component: "website:exe:website"
+
+    - path: "src/Compilers.hs"
+      component: "website:exe:website"

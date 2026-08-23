@@ -1,0 +1,102 @@
+@use "theme" as *;
+@use "sass:list";
+@use "variables" as *;
+
+// ----------------------------------------------------------
+// Links
+// ----------------------------------------------------------
+
+@mixin unlink {
+    a, a:visited {
+        @include set-var(color, "fg");
+        
+        text-decoration: none;
+    }
+}
+
+@mixin relink {
+    a, a:visited { text-decoration: underline; }
+    a { @include set-var(color, "green"); }
+    a:visited { @include set-var(color, "bg_visited"); }
+}
+
+// ----------------------------------------------------------
+// Spacing & Text
+// ----------------------------------------------------------
+
+@mixin club-title-and-subtitle {
+    &__title { margin-bottom: 0; }
+    &__subtitle { margin-top: 0; }
+}
+
+@mixin site-bar {
+    @include set-flex(row, wrap, $space-normal, space-between, stretch);
+    @include set-width;
+}
+
+@mixin set-flex(
+    $direction: row,
+    $wrap: wrap,
+    $gap: null,
+    $justify: flex-start,
+    $align: stretch
+) {
+    display: flex;
+    flex-direction: $direction;
+    flex-wrap: $wrap;
+
+    justify-content: $justify;
+    align-items: $align;
+
+    @if $gap != null {
+        gap: $gap;
+    }
+}
+
+@mixin set-width {
+    padding: 0 $space-thin;
+    max-width: $max-width;
+    margin: 0 auto;
+}
+
+@mixin with-date {
+    &__date {
+        @include set-var(color, "fg_date");
+        
+        margin: 0;
+    }
+}
+
+// ----------------------------------------------------------
+// Border
+// ----------------------------------------------------------
+
+@mixin create-border(
+    $colour: "bg_border",
+    $direction: all,
+    $radius: null,
+    $style: solid,
+    $width: 1px
+) {
+    $valid-directions: top right bottom left all;
+
+    @if not list.index($valid-directions, $direction) {
+        @error "Invalid border direction `#{$direction}`. Use one of: #{$valid-directions}";
+    }
+
+    @if $direction == all {
+        border: $width $style var(--#{$colour});
+    } @else {
+        border-#{$direction}: $width $style var(--#{$colour});
+    }
+
+    @if $radius != null {
+        border-radius: $radius;
+    }
+}
+
+@mixin vignette-style($padding: $space-thin) {
+    @include create-border("yellow", $radius: $space-thin, $width: 2px);
+    @include set-var(background-color, "bg_vignette");  
+    padding: $padding;
+}

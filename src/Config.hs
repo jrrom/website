@@ -1,7 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Config where
 
 ----------------------------------------------------------------
 import Hakyll
+import Text.Pandoc.Class (runPure)
+import Text.Pandoc.Options (WriterOptions(..))
+import Text.Pandoc.Templates (compileTemplate, runWithDefaultPartials)
 ----------------------------------------------------------------
 
 root :: String
@@ -26,4 +31,19 @@ myFeedConfiguration =
         , feedRoot        = root
         }
 
-----------------------------------------------------------------
+withToc :: WriterOptions
+withToc = defaultHakyllWriterOptions
+        { writerTableOfContents = True
+        , writerNumberSections = True
+        , writerTOCDepth = 3
+        , writerTemplate = Just (
+            either error id $ either (error . show) id
+          $ runPure
+          $ runWithDefaultPartials
+          $ compileTemplate "" "<div id=\"toc\">$toc$</div>\n$body$"
+          )
+        }
+
+handleTocSetting :: Maybe String -> WriterOptions
+handleTocSetting Nothing  = defaultHakyllWriterOptions
+handleTocSetting (Just _) = withToc

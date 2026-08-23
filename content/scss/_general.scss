@@ -1,4 +1,10 @@
-@use "variables" as *;
+@use "utility/variables" as *;
+@use "utility/theme" as *;
+@use "utility/mixins.scss" as *;
+
+// ----------------------------------------------------------
+// Fonts
+// ----------------------------------------------------------
 
 @font-face {
   font-display: swap;
@@ -23,6 +29,26 @@
   font-weight: 600;
   src: url('../fonts/epunda-slab-v2-latin-600.woff2') format('woff2');
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family:
+        "Epunda Slab",
+        "Roboto Slab",
+        "Georgia",
+        "Times New Roman",
+        serif;
+    font-weight: 600;
+}
+
+@each $font, $size in $headers {
+    #{$font} {
+        font-size: $size;
+    }
+}
+
+// ----------------------------------------------------------
+// Fonts
+// ----------------------------------------------------------
 
 :root {
     @include create-theme(dark);
@@ -68,21 +94,7 @@ body {
     }
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family:
-        "Epunda Slab",
-        "Roboto Slab",
-        "Georgia",
-        "Times New Roman",
-        serif;
-    font-weight: 600;
-}
 
-@each $font, $size in $headers {
-    #{$font} {
-        font-size: $size;
-    }
-}
 
 // Default anchor link values
 @include relink;

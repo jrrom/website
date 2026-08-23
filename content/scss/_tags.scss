@@ -1,0 +1,33 @@
+@use "sass:map";
+@use "utility/mixins" as *;
+@use "utility/theme" as *;
+
+// ----------------------------------------------------------
+// Styling tags for posts
+// ----------------------------------------------------------
+
+$tag-definitions: (
+  "Web":        ("bg": "bg_green",  "fg": "green"),
+  "Nix":        ("bg": "bg_cyan",   "fg": "cyan"),
+  "Haskell":    ("bg": "bg_blue",   "fg": "blue"),
+  "CSS":        ("bg": "bg_purple", "fg": "purple"),
+  "SCSS":       ("bg": "bg_purple", "fg": "purple"),
+  "HTML":       ("bg": "bg_yellow", "fg": "yellow"),
+  "PureScript": ("bg": "bg_slate",  "fg": "slate"),
+  "Perl":       ("bg": "bg_indigo", "fg": "indigo"),
+  "Emacs":      ("bg": "bg_indigo", "fg": "indigo"),
+  "jq":         ("bg": "bg_orange", "fg": "orange")
+);
+
+// ----------------------------------------------------------
+// Setting variables
+// ----------------------------------------------------------
+@each $name, $colors in $tag-definitions {
+  .#{$name} {
+    @include create-border(map.get($colors, "fg"));
+    @include set-var(background-color, map.get($colors, "bg"));
+    @include set-var(color, map.get($colors, "fg"));
+    font-weight: 900;
+    a, a:visited { @include set-var(color, map.get($colors, "fg")); }
+  }
+}

@@ -2,9 +2,11 @@
 clean:
     cabal clean
     cabal run website clean
+    rm -rf {{justfile_directory()}}/dist-newstyle
 
 deep-clean: clean
-    rm -rf ~/.cache \
+    rm -rf ~/.cache/hie-bios \
+           ~/.cache/ghcide \
            ~/.hie
     @echo "Clear and ready to go"
 

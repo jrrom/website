@@ -15,7 +15,9 @@
 $for(pages)$
   <url>
     <loc>$root$$url$</loc>
-    <lastmod>$if(updated)$$updated$$else$$if(date)$$date$$endif$$endif$</lastmod>
+    $if(lastmod)$
+    <lastmod>$lastmod$</lastmod>
+    $endif$
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

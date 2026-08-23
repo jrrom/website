@@ -1,77 +1,148 @@
-@use "variables" as *;
+@use "sass:map";
+@use "utility/theme" as *;
 
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen { div.sourceCode { overflow: auto; } }
-@media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code { counter-reset: source-line 0; }
-pre.numberSource code > span { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before {
-    content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-}
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-@media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
+$syntax-tokens: (
+    al: (colour: "red",       weight: bold),                // Alert
+    an: (colour: "grey1",     style: italic, weight: bold), // Annotation
+    at: (colour: "yellow"),                                 // Attribute
+    bn: (colour: "aqua"),                                   // BaseN
+    bu: (colour: "aqua"),                                   // BuiltIn
+    cf: (colour: "green"),                                  // ControlFlow
+    ch: (colour: "blue"),                                   // Char
+    cn: (colour: "bg_visited"),                             // Constant
+    co: (colour: "grey1",     style: italic),               // Comment
+    cv: (colour: "grey1",     style: italic, weight: bold), // CommentVar
+    do: (colour: "red",       style: italic),               // Documentation
+    dt: (colour: "red"),                                    // DataType
+    dv: (colour: "aqua"),                                   // DecVal
+    er: (colour: "red"),                                    // Error
+    // ex: unstyled                                         // Extension
+    fl: (colour: "aqua"),                                   // Float
+    fu: (colour: "blue"),                                   // Function
+    im: (colour: "green",     weight: bold),                // Import
+    in: (colour: "fg_date",   style: italic, weight: bold), // Information
+    kw: (colour: "green",     weight: bold),                // Keyword
+    op: (colour: "grey1"),                                  // Operator
+    ot: (colour: "green"),                                  // Other
+    pp: (colour: "orange"),                                 // Preprocessor
+    sc: (colour: "aqua"),                                   // SpecialChar
+    ss: (colour: "purple"),                                 // SpecialString
+    st: (colour: "aqua"),                                   // String
+    va: (colour: "blue"),                                   // Variable
+    vs: (colour: "aqua"),                                   // VerbatimString
+    wa: (colour: "red"),                                    // Warning
+);
 
 code {
-    @include part(al, "red", $weight: bold);     /* Alert */                     
-    @include part(an, "grey1", italic, bold);    /* Annotation */                
-    @include part(at, "yellow");                 /* Attribute */                 
-    @include part(bn, "aqua");                   /* BaseN */                     
-    @include part(bu, "aqua");                   /* BuiltIn */                   
-    @include part(cf, "green");                  /* ControlFlow */               
-    @include part(ch, "blue");                   /* Char */                      
-    @include part(cn, "bg_visited");             /* Constant */                  
-    @include part(co, "grey1", italic);          /* Comment */                   
-    @include part(cv, "grey1", italic, bold);    /* CommentVar */                
-    @include part(do, "red", italic);            /* Documentation */             
-    @include part(dt, "red");                    /* DataType */                  
-    @include part(dv, "aqua");                   /* DecVal */                    
-    @include part(er, "red");                    /* Error */
-//  span.ex { }                                  /* Extension */
-    @include part(fl, "aqua");                   /* Float */                     
-    @include part(fu, "blue");                   /* Function */                  
-    @include part(im, "green", $weight: bold);   /* Import */                    
-    @include part(in, "fg-date", italic, bold);  /* Information */               
-    @include part(kw, "green", $weight: bold);   /* Keyword */                   
-    @include part(op, "grey1");                  /* Operator */                  
-    @include part(ot, "green");                  /* Other */                     
-    @include part(pp, "orange");                 /* Preprocessor */              
-    @include part(sc, "aqua");                   /* SpecialChar */               
-    @include part(ss, "purple");                 /* SpecialString */             
-    @include part(st, "aqua");                   /* String */                    
-    @include part(va, "blue");                   /* Variable */                  
-    @include part(vs, "aqua");                   /* VerbatimString */            
-    @include part(wa, "red");                    /* Warning */                   
-}                                                                                             
+    @each $token, $props in $syntax-tokens {
+        span.#{$token} {
+            @include set-var(color, map.get($props, colour));
 
-// Fix for blocks without sourceCode or given language
-pre {
-  overflow-x: auto;
-  max-width: 100%;
-  -webkit-overflow-scrolling: touch;
+            $style:  map.get($props, style);
+            $weight: map.get($props, weight);
+
+            @if $weight != null { font-weight: $weight; }
+            @if $style  != null { font-style: $style; }
+        }
+    }
 }
 
-// Fix inline monospace
-:not(pre) > code {
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: anywhere;
+// ==========================================
+// Skylighting boilerplate
+// ==========================================
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+.sourceCode {
+    overflow: visible;
+}
+
+div.sourceCode {
+    margin: 1em 0;
+}
+
+pre.sourceCode {
+    margin: 0;
+}
+
+pre > code.sourceCode {
+    white-space: pre;
+    position: relative;
+}
+
+pre > code.sourceCode > span {
+    display: inline-block;
+    line-height: 1.25;
+}
+
+pre > code.sourceCode > span:empty {
+    height: 1.2em;
+}
+
+code.sourceCode > span {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+@media screen {
+    div.sourceCode {
+        overflow: auto;
+    }
+}
+
+@media print {
+    pre > code.sourceCode {
+        white-space: pre-wrap;
+    }
+
+    pre > code.sourceCode > span {
+        text-indent: -5em;
+        padding-left: 5em;
+    }
+}
+
+// Line numbers
+
+pre.numberSource code {
+    counter-reset: source-line 0;
+}
+
+pre.numberSource code > span {
+    position: relative;
+    left: -4em;
+    counter-increment: source-line;
+}
+
+pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line);
+    position: relative;
+    left: -1em;
+    text-align: right;
+    vertical-align: baseline;
+    border: none;
+    display: inline-block;
+    padding: 0 4px;
+    width: 4em;
+    color: #aaaaaa;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+pre.numberSource {
+    margin-left: 3em;
+    border-left: 1px solid #aaaaaa;
+    padding-left: 4px;
+}
+
+@media screen {
+    pre > code.sourceCode > span > a:first-child::before {
+        text-decoration: underline;
+    }
 }
