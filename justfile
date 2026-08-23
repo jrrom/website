@@ -29,7 +29,7 @@ today    := `date +%Y-%m-%d`
 new title:
     #!/bin/sh
     filename=$(printf '%s' "{{title}}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-    file="{{post_dir}}/{{today}}-$filename.md"
+    file="{{post_dir}}/{{today}}-$filename.org"
 
     printf '%s\n' \
         '---' \
