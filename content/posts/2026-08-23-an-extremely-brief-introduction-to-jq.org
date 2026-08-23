@@ -1,0 +1,398 @@
+---
+title: "An Extremely Brief Introduction to jq"
+description: Basic overview for a very unique language.
+tags: jq
+toc: true
+date: 2026-08-23
+lastmod: 2026-08-23
+---
+
+* Introduction
+If I were to ask you what you thought [[https://jqlang.org/][jq]] stood for, then you might answer or you might assume that it is the short form of JSON query. However,[[https://stackoverflow.com/questions/56111140/what-does-jq-stand-for][ that assumption is false]] according to one of the authors of =jq=! This is just one of the many ways that this programming language is misunderstood. One of these misunderstandings is that =jq= is just for handling JSON. To the contrary, it can even serve as a rudimentary general-purpose programming language, a stream editor, and even a [[https://github.com/jqlang/jq/wiki/Parsing-Expression-Grammars][PEG parser]]. =jq= is so complex that [[https://github.com/wader/jqjq][it can be implemented in itself]]. It is a Turing-complete language like any other.
+
+Simple FizzBuzz program in jq:
+#+begin_src js :in-file placeholder.json :results output
+range(1; 101)
+  | if   . % 15  == 0 then "FizzBuzz"
+    elif . % 3  == 0 then  "Fizz"
+    elif . % 5 == 0 then   "Buzz"
+    else . end
+#+end_src
+
+** Disclaimer
+First, I must admit that I am not a =jq= expert, just wanted to make this  after completing the [[https://exercism.org/tracks/jq][Exercism jq track]] for fun. I urge anyone interested to go look into the[[https://jqlang.org/manual/][ documentation and manual]]. The main purpose of this is to show off a cool thing. Any errors are my own.
+
+* Basics
+Basic scripting flags:
+#+begin_src
+jq -n  '...'                     - evaluate pure jq without passing a JSON file
+jq -f  'program.jq' input.json   - evaluate input.json using program.jq
+jq -nf 'program.jq'              - evaluate a pure jq file without passing a json file
+jq '<jq code>' input.json        - evaluate input.json using command-line code
+#+end_src
+
+** Hello, World!
+If I had to say something about the general "vibe" of =jq=, I'd say it is a functional programming language out of necessity rather than by choice. The first thing you need to understand is that everything is either a filter or a construct that acts on filters. Let's look at a quick "hello world":
+
+#+begin_src js :stdin a
+"Hello World" | .
+#+end_src
+
+Here, the default filter that returns what is passed to it is ~.~.  Any value passed to it gets returned, it is the identity operator.
+
+#+begin_example
+"hello world"
+#+end_example
+
+Fun fact: literals in =jq= are filters that ignore their input and produce their own value as output.
+
+** Object Indexing
+We use object indexing in order to get the value of a key from an object.
+
+#+begin_src js
+{
+    "John": 50,
+    "Bob":  75,
+    "Tom":  80,
+    "John Smith": 100
+}
+#+end_src
+
+We pass this object to the code blocks.
+
+#+begin_src js
+.Bob
+#+end_src
+
+#+begin_example
+75
+#+end_example
+
+We can even use square brackets for more complicated keys.
+
+#+begin_src js
+.["John Smith"]
+#+end_src
+
+#+begin_example
+100
+#+end_example
+
+_Note_: We use ~?~ when we do not know if the attribute exists.
+
+#+begin_src js
+.jrrom?
+#+end_src
+
+#+begin_example
+null
+#+end_example
+
+** Pipe Operator
+We use it to chain values, and apply many filters in sequence.
+
+#+begin_src js :stdin b
+.["John"]
+ | tostring
+ | split("")
+#+end_src
+
+#+begin_example
+[
+ "5",
+ "0"
+]
+#+end_example
+
+** Arrays
+Arrays are a language construct for arranging a sequence of values in =jq=.
+
+#+begin_src js
+[{"John":50},{"Bob":75},{"Tom":80},{"John Smith":100}]
+#+end_src
+
+We can use array indexing to query them by index position, this is helpful in iteration and arrays created by =range=.
+
+#+begin_src js :stdin c
+.[1]
+#+end_src
+
+=jq= is a 0-indexed language!
+
+#+begin_example
+{
+  "Bob": 75
+}
+#+end_example
+
+You can also take in an array and output a stream of objects by themselves. This is the main way that we create streams in =jq=.
+
+#+begin_src js
+.[]
+#+end_src
+
+#+begin_example
+{
+  "John": 50
+}
+{
+  "Bob": 75
+}
+{
+  "Tom": 80
+}
+{
+  "John Smith": 100
+}
+#+end_example
+
+** Comma Operator
+To evaluate multiple filters on an input to produce multiple outputs.
+#+begin_src js :in-file placeholder.json :output results
+{"name": "Joltik", "type": "Electric"}
+  | (.name, .type)
+  | "hi " + .      
+#+end_src
+
+#+begin_example
+"hi Joltik"
+"hi Electric"
+#+end_example
+
+** Default Operator
+It acts on null values or keys that do not exist. It produces a fallback value.
+
+#+begin_src js :in-file placeholder.json :output results
+[{"name": "Joltik", "type": "Electric"}, {"name": "Ash"}]
+  | .[]
+  | (.name, .type // "Unknown")
+#+end_src
+
+#+begin_example
+"Joltik"
+"Electric"
+"Ash"
+"Unknown"
+#+end_example
+
+** Object Construction & Assignment
+We can create new JSON objects inside of jq and we can also modify existing ones.
+#+begin_src js :in-file placeholder.json :output results
+[{"name": "Joltik", "type": "Electric"}, {"name": "Ash"}]
+  | .[]
+  | {"name": .name, "object": "entity"}
+#+end_src
+
+#+begin_example
+{
+  "name": "Joltik",
+  "object": "entity"
+}
+{
+  "name": "Ash",
+  "object": "entity"
+}
+#+end_example
+
+#+begin_src js :in-file placeholder.json :output results
+[{"name": "Joltik", "type": "Electric"}, {"name": "Ash"}]
+  | .[]
+  | .type = "entity"     
+
+#+end_src
+
+#+begin_example
+{
+  "name": "Joltik",
+  "type": "entity"
+}
+{
+  "name": "Ash",
+  "type": "entity"
+}
+#+end_example
+
+* Variables
+Variables are pretty complex in =jq=. Their main use case comes from the fact that it is hard to preserve values in =jq=. Variables were made specifically to solve this. We really don't need to use variables in most situations but there are some situations where they are vital. See the following:
+
+#+begin_src js :stdin c
+[1, 2, 3]
+  | .[2] as $saved_value
+  | [.[] + 1]
+  | $saved_value # Without variables, it would be difficult to access the old value before the change
+#+end_src
+
+#+begin_example
+3
+#+end_example
+
+* Data Manipulation
+These are generally the foundational data manipulation constructs in functional programming languages including =jq=. We can do most of the important querying with their help.
+
+#+begin_example
+Trinity of Functional Programming (jq style)
+│
+├── Map
+│   ├── Equivalent to map in most languages
+│   ├── [a] → (a → b) → [b]
+│   └── <data> │ map(<filter>)
+│
+├── Select
+│   ├── Similar to filter in most languages
+│   ├── [a] → (a → boolean) → [a]
+│   └── <data> │ map(select(<filter>))
+│
+└── Reduce
+    ├── Equivalent to reduce or fold
+    ├── Complex construct in jq
+    └── <data> │ reduce .[] as $var (<initial>; <update>)
+#+end_example
+
+** Map
+#+begin_src js
+[{name: "A"}, {name: "B"}, {name: "C"}]
+  | map(.name)
+#+end_src
+
+#+begin_example
+[
+ "A",
+ "B",
+ "C"
+]
+#+end_example
+
+** Filter
+#+begin_src js
+[{name: "A", marks: 55}, {name: "B", marks: 66}, {name: "C", marks: 77}]
+  | map(select(.marks > 60))
+#+end_src
+
+#+begin_example
+[
+  {
+    "name": "B",
+    "marks": 66
+  },
+  {
+    "name": "C",
+    "marks": 77
+  }
+]
+#+end_example
+
+** Reduce
+#+begin_src js
+[{name: "A", marks: 55}, {name: "B", marks: 66}, {name: "C", marks: 77}]
+  | reduce .[].marks as $m (0; . + $m)
+#+end_src
+
+#+begin_example
+198
+#+end_example
+
+* Functions
+To call =jq= functions "functions" is a bit misleading in my opinion. They are closer to glorified macros if you do not use variables. They are a complex type of reusable filter that is more ergonomic than repeating the same code.
+
+#+begin_src js :stdin c
+def give_msg(greeting; msg):
+  "\(greeting) \(.)! \(msg)" # String interpolation
+;
+def say_hello:
+  give_msg("Good morning"; "How are you?")
+  # . | give_msg("Good morning"; "How are you?")
+;
+"John"
+  | say_hello
+#+end_src
+
+#+begin_example
+"Good morning John! How are you?"
+#+end_example
+
+** Important footgun!
+Arguments in =jq= are not evaluated values, they remain as filters! Keep this in mind before you make a complicated function.
+
+#+begin_src js
+def addvalue(f): map(. + f);
+
+[[1,2], [10,20]] | addvalue(.[0])
+#+end_src
+
+You might expect the result to be =[[1, 2, 1, 2], [10, 20, 1, 2]]=, however, you must remember that the filter itself is passed, so it's more like =map(. + .[0])= which leads to:
+
+#+begin_example
+jq: error (at <unknown>): array ([1,2]) and number (1) cannot be added
+#+end_example
+
+Since it becomes =map(. + .[0])= which is =map([1, 2] + 1)=.
+
+* Miscellaneous
+** Some built-ins
+Check the manual for more!
+
+*** tonumber
+#+begin_src js :in-file placeholder.json :output results
+"123" | tonumber
+#+end_src
+
+#+begin_example
+123
+#+end_example
+
+*** tostring
+#+begin_src js :in-file placeholder.json :output results
+123 | tostring
+#+end_src
+
+#+begin_example
+"123"
+#+end_example
+
+*** length
+It works on arrays, strings and even objects.
+
+#+begin_src js :in-file placeholder.json :output results
+"tabby" | length
+#+end_src
+
+#+begin_example
+5
+#+end_example
+
+*** has(key)
+#+begin_src js :in-file placeholder.json :output results
+{"name": "Ash"} | has("name")
+#+end_src
+
+#+begin_example
+true
+#+end_example
+
+*** del(key)
+#+begin_src js :in-file placeholder.json :output results
+{"name": "Ash", "age": 10} | del(.name)
+#+end_src
+
+#+begin_example
+{
+  "age": 10
+}
+#+end_example
+
+*** split, join
+#+begin_src js :in-file placeholder.json :output results
+"Hello World"
+  | split("")
+  | join("")
+#+end_src
+
+#+begin_example
+"Hello World"
+#+end_example
+
+* Conclusion
+I hope this serves as a good reference point to =jq=. My objective for this is to put all the most important basic beginner knowledge all in one place. To any readers, I would also highly recommend reading the manual and continuing your =jq= journey over there!
+
+Thank you for reading.
+ 

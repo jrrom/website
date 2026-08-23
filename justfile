@@ -20,7 +20,7 @@ watch:
 # deployment
 publish message: clean build
     git add -A
-    git commit -m {{message}}
+    git commit -m "{{message}}"
 
 # writing
 post_dir := justfile_directory() / "content/posts"
