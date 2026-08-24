@@ -14,6 +14,9 @@ deep-clean: clean
 build:
     cabal run website build
 
+cleanbuild: clean build
+    echo "Complete!"
+
 watch:
     cabal run website watch
 
